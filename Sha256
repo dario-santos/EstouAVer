@@ -4,10 +4,10 @@ using System.Text;
 
 namespace main
 {
-    class Sha256
+    class Funcoes
     {
-
-       public string GerarSha256(string text)
+        //Função para gerar SHA256 de uma string
+        public string GerarSha256(string text)
         {
             // Create a SHA256   
             using (SHA256 sha256Hash = SHA256.Create())
@@ -26,8 +26,13 @@ namespace main
             }
         }
 
-
-
-
+        //Função que gera o salt aleatório
+        public byte[] GerarSalt()
+        {
+            Random number = new Random();
+            byte[] salt = new byte[32];
+            number.NextBytes(salt);
+            return salt;
+        }
     }
 }
