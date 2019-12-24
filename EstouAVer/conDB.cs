@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Data.SQLite;
 
-namespace Estou_a_ver
+namespace EstouAVer
 {
-    public class conDB
+    public static class conDB
     {
-
+        public static string userLog;
         public static void InsertDB(List<hash> Lista)
         {
             string sql;
@@ -18,7 +18,7 @@ namespace Estou_a_ver
             SQLiteConnection mdbConnection = new SQLiteConnection("Data Source=filessha256.sqlite;Version=3;");
 
             //verifica se existe o ficheiro
-            verify = File.Exists(@"C:\Users\Frias\Desktop\Estou a ver\Estou a ver\bin\Debug\netcoreapp3.1\filessha256.sqlite");
+            verify = File.Exists(Directories.sqlPath);
 
             if (verify == false)
             {
@@ -31,11 +31,9 @@ namespace Estou_a_ver
                 command.ExecuteNonQuery();
 
                 mdbConnection.Close();
+                mdbConnection.Dispose();
+                command.Dispose();
             }
-
-            int num = Lista.Count;
-
-            Console.WriteLine(num.ToString());
 
             //  Console.WriteLine(Lista[0].nameFile + " " + Lista[0].hash256);
             for (int i = 0; i < Lista.Count; i++)
@@ -59,13 +57,13 @@ namespace Estou_a_ver
 
                 if (bdName != Lista[i].nameFile || sha256Name != Lista[i].hash256)
                 {
-                    sql = "INSERT INTO filessha256 (nameFile, sha256) values ('" + Lista[i].nameFile + "', '" + Lista[i].hash256 + "') ";
 
-                    SQLiteCommand command2 = new SQLiteCommand(sql, mdbConnection);
-
-                    command2.ExecuteNonQuery();
+                    DataBase.InsertDB("INSERT INTO filessha256 (nameFile, sha256) values ('" + Lista[i].nameFile + "', '" + Lista[i].hash256 + "') ");
+                
                 }
+
                 mdbConnection.Close();
+                mdbConnection.Dispose();
             }
 
         }
@@ -89,24 +87,19 @@ namespace Estou_a_ver
             }
             mdbConnection.Close();
 
-
-            while (rdUser.Trim() == UserName.Trim())
+            if (rdUser.Trim() == UserName.Trim())
             {
-                Console.WriteLine("O utilizador com o username \"" + UserName + "\" jÃ¡ existe!");
-                Console.WriteLine("Por favor introduza o novo username!");
-                UserName = Console.ReadLine();
+                Console.Clear();
+                Console.WriteLine("\nERRO! O UTILIZADOR COM O USERNAME \"" + UserName + "\" JÁ EXISTE!");
+                Console.WriteLine("INTRODUZA UM NOVO USERNAME!");
+                return false;
             }
 
-            sql = "INSERT INTO User (NameUser, Salt, Rep) values ('" + UserName + "', '" + salt + "',  '" + hash + "') ";
+            DataBase.InsertDB("INSERT INTO User (NameUser, Salt, Rep) values ('" + UserName + "', '" + salt + "',  '" + hash + "')  ");
 
-            SQLiteCommand command2 = new SQLiteCommand(sql, mdbConnection);
-            mdbConnection.Open();
-            command2.ExecuteNonQuery();
-            mdbConnection.Close();
-
-            Console.WriteLine("Utilizador registado com sucesso");
+            Console.Clear();
+            Console.WriteLine("REGISTO EFETUADO COM SUCESSO!");
             return true;
-
         }
 
 
@@ -156,14 +149,20 @@ namespace Estou_a_ver
             }
 
             mdbConnection.Close();
+
             if (rep == autentication)
             {
-                Console.WriteLine("Login com sucesso!");
+                Console.Clear();
+                Console.WriteLine("\nLOGIN EFETUADO COM SUCESSO!\n");
+
+                userLog = UserName;
+
                 return true;
             }
             else
             {
-                Console.WriteLine("Password errada!");
+                Console.Clear();
+                Console.WriteLine("\nDADOS INVÁLIDOS! VOLTE A TENTAR.\n");
                 return false;
             }
         }
