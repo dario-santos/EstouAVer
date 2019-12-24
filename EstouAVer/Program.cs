@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.ServiceProcess;
 
 namespace EstouAVer
@@ -7,36 +8,23 @@ namespace EstouAVer
     {
         private static void Main(string[] args)
         {
-
-            //_______________________________________________________INSERIR HASH DOS FICHEIROS NO BASE DE DADOS_______________________________________________________//
-
-            //List<hash> List = new List<hash>();
-
-            //string directory = @"C:\Users\Frias\Documents\Estou a ver\FicheirosTxt";
-            //var hashValues = HashCode.Generate(directory);
-
-            //foreach (var hashValue in hashValues)
-            //{
-            //    hash obj = new hash();
-
-            //    PrintElementOfDictionary(hashValue.Key, hashValue.Value);
-
-            //    obj.nameFile = hashValue.Key;
-            //    obj.hash256 = BitConverter.ToString(hashValue.Value).Replace("-", "");
-
-            //    List.Add(obj);
-            //}
-
-            //conDB.InsertDB(List);
-
-            ////_______________________________________________________INSERIR HASH DOS FICHEIROS NO BASE DE DADOS_______________________________________________________//
+            StartService();
             
-            // Chamada precisa para iniciar o serviço
-            ServiceBase.Run(new VerificationService());
-            Console.Clear();
-
+            CreateDataBase();
 
             Inicio();
+        }
+
+        private static void StartService() 
+        {
+            ServiceBase.Run(new VerificationService());
+            Console.Clear();
+        }
+        
+        private static void CreateDataBase() 
+        {
+            if (!File.Exists(Directories.database))
+                AjudanteParaBD.OnCreate();
         }
 
         private static void Inicio()
@@ -275,3 +263,28 @@ public class Hash
 
     public string hash256 { get; set; }
 }
+
+
+
+//_______________________________________________________INSERIR HASH DOS FICHEIROS NO BASE DE DADOS_______________________________________________________//
+
+//List<hash> List = new List<hash>();
+
+//string directory = @"C:\Users\Frias\Documents\Estou a ver\FicheirosTxt";
+//var hashValues = HashCode.Generate(directory);
+
+//foreach (var hashValue in hashValues)
+//{
+//    hash obj = new hash();
+
+//    PrintElementOfDictionary(hashValue.Key, hashValue.Value);
+
+//    obj.nameFile = hashValue.Key;
+//    obj.hash256 = BitConverter.ToString(hashValue.Value).Replace("-", "");
+
+//    List.Add(obj);
+//}
+
+//conDB.InsertDB(List);
+
+////_______________________________________________________INSERIR HASH DOS FICHEIROS NO BASE DE DADOS_______________________________________________________//

@@ -18,7 +18,7 @@ namespace EstouAVer
             SQLiteConnection mdbConnection = new SQLiteConnection("Data Source=filessha256.sqlite;Version=3;");
 
             //verifica se existe o ficheiro
-            verify = File.Exists(Directories.sqlPath);
+            verify = File.Exists(Directories.database);
 
             if (verify == false)
             {

@@ -5,7 +5,7 @@ namespace EstouAVer
     class DataBase
     {
         //seleciona a base de dados
-        private static SQLiteConnection mdbConnection = new SQLiteConnection("Data Source=filessha256.sqlite;Version=3;");
+        private static SQLiteConnection mdbConnection = new SQLiteConnection("Data Source=" + Directories.database + ";Version=3;");
 
         public static void InsertDB(string query)
         {
