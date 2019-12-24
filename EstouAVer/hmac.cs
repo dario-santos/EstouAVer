@@ -2,10 +2,9 @@
 using System.IO;
 using System.Security.Cryptography;
 
-
 namespace EstouAVer
 {
-    class hmac
+    class HMac
     {
 
         //public static void Main(string[] Fileargs)

@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
-using System.Linq;
-using System.Threading.Tasks;
 using System.ServiceProcess;
 
 namespace EstouAVer
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
 
             //_______________________________________________________INSERIR HASH DOS FICHEIROS NO BASE DE DADOS_______________________________________________________//
@@ -35,56 +30,58 @@ namespace EstouAVer
             //conDB.InsertDB(List);
 
             ////_______________________________________________________INSERIR HASH DOS FICHEIROS NO BASE DE DADOS_______________________________________________________//
-
+            
+            // Chamada precisa para iniciar o serviço
             ServiceBase.Run(new VerificationService());
+            Console.Clear();
+
+
             Inicio();
-            Console.ReadLine();
         }
 
-        public static void Inicio()
+        private static void Inicio()
         {
-            bool a;
+            bool tmp;
             string opcao;
-            int result_a;
 
             //verificação da introdução do user
             do
             {
-                a = true;
+                tmp = true;
+
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("| Estou-a-Ver: um Monitor para Integridade para Diretorias |");
                 Console.WriteLine("+----------------------------------------------------------+");
-                Console.WriteLine("\n1 - ENTRAR");
-                Console.WriteLine("2 - REGISTAR");
-                Console.WriteLine("0 - SAIR");
+                Console.WriteLine("\n1 - Entrar");
+                Console.WriteLine("2 - Registar");
+                Console.WriteLine("0 - Sair");
+                Console.Write("\nOpcao escolhida: ");
                 opcao = Console.ReadLine();
 
-                if (opcao != "1" && opcao != "2" && opcao != "0")
+                if (!opcao.Equals("1") && !opcao.Equals("2") && !opcao.Equals("0"))
                 {
                     Console.Clear();
-                    Console.WriteLine("\nOPÇÃO INVÁLIDA. INTRODUZA A OPÇÃO CORRETA!");
-                    a = false;
+                    Console.WriteLine("\nOpcao invalida. Introduza uma das opcoes enunciadas!");
+                    tmp = false;
                 }
-            } while (a != true);
+            } while(!tmp);
 
             //opções depois do user escolher no meu
-            result_a = int.Parse(opcao);
-            switch (result_a)
+            switch (int.Parse(opcao))
             {
                 case 0:
-                    Console.WriteLine("Programa terminado");
+                    Console.WriteLine("Programa terminado.");
                     break;
                 case 1:
-                    Login();
+                    LoginMenu();
                     break;
                 case 2:
-                    Registo();
+                    RegistoMenu();
                     break;
             }
         }
 
-        //Login do USER
-        public static void Login()
+        private static void LoginMenu()
         {
             string username, password;
             bool value;
@@ -94,20 +91,21 @@ namespace EstouAVer
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("|                        Login                             |");
                 Console.WriteLine("+----------------------------------------------------------+");
+                
                 Console.WriteLine("\nIntroduza os dados solicitados!");
-                Console.WriteLine("Username: ");
+                Console.Write("Username: ");
                 username = Console.ReadLine();
-                Console.WriteLine("Password: ");
+                Console.Write("Password: ");
                 password = Console.ReadLine();
 
                 value = conDB.Login(username, password);
             } while (value == false);
 
             Console.WriteLine("Bem vindo " +username +"!");
-            userMenuLog(username);
+            MainMenu(username);
         }
 
-        public static void userMenuLog(string ursname)
+        private static void MainMenu(string ursname)
         {
             bool b;
             string opcao;
@@ -125,13 +123,14 @@ namespace EstouAVer
                 Console.WriteLine("3 - Apagar Registos");
                 Console.WriteLine("4 - Ajuda");
                 Console.WriteLine("5 - Logout");
-                Console.WriteLine("0 - SAIR");
+                Console.WriteLine("0 - Sair");
+                Console.Write("\nOpcao escolhida: ");
                 opcao = Console.ReadLine();
 
                 if (opcao != "1" && opcao != "2" && opcao != "3" && opcao != "4" && opcao != "5" && opcao != "0")
                 {
                     Console.Clear();
-                    Console.WriteLine("\nOPÇÃO INVÁLIDA. INTRODUZA A OPÇÃO CORRETA!");
+                    Console.WriteLine("\nOpcao invalida. Introduza uma das opcoes enunciadas!");
                     b = false;
                 }
             } while (b != true);
@@ -150,7 +149,7 @@ namespace EstouAVer
 
                     Dir.pedirDirectoria();
 
-                    userMenuLog(ursname);
+                    MainMenu(ursname);
 
                     break;
                 case 2:
@@ -161,9 +160,9 @@ namespace EstouAVer
                     break;
                 case 4:
                     Console.Clear();
-                    Funcoes.Ajuda();
+                    HelpMenu();
 
-                    userMenuLog(ursname);
+                    MainMenu(ursname);
                     break;
                 case 5:
                     Console.WriteLine("5 - Logout");
@@ -171,8 +170,7 @@ namespace EstouAVer
             }
         }
 
-        //Registo do USER
-        public static void Registo()
+        private static void RegistoMenu()
         {
             string userName;
             string password;
@@ -207,12 +205,10 @@ namespace EstouAVer
                 } while (verifica != true);
 
                 //Calcula o SHA da password do user
-                Funcoes obj = new Funcoes();
-                passSHA = obj.GerarSha256(password);
+                passSHA = HashCodeSHA256.GenerateFromText(password);
 
                 //Calcula o SALT[32]
-                Funcoes gerarsalt = new Funcoes();
-                salt = gerarsalt.GerarSalt();
+                salt = Funcoes.GenerateSalt();
 
                 //converte o salt numa string
                 final_salt = BitConverter.ToString(salt).Replace("-", "");
@@ -221,15 +217,44 @@ namespace EstouAVer
                 string final_sha_salt = passSHA + final_salt;
 
                 //calcula o sha da pass com o salt
-                Funcoes sha = new Funcoes();
-                passwordSalt_SHA = sha.GerarSha256(final_sha_salt);
+                passwordSalt_SHA = HashCodeSHA256.GenerateFromText(final_sha_salt);
 
-            }while(conDB.CreatUser(userName, passwordSalt_SHA, final_salt) == false);
+            } while(conDB.CreatUser(userName, passwordSalt_SHA, final_salt) == false);
 
-            Login();
+            LoginMenu();
         }
 
-        public static void PrintElementOfDictionary(string name, byte[] array)
+        private static void HelpMenu()
+        {
+            Console.WriteLine("+----------------------------------------------------------+");
+            Console.WriteLine("|                         AJUDA                            |");
+            Console.WriteLine("+----------------------------------------------------------+");
+            Console.WriteLine("*    1 - Ler Diretoria                                     *");
+            Console.WriteLine("*        -> Pede ao utilizador para introduzir a diretoria *");
+            Console.WriteLine("*        absoluta onde têm os documentos.                  *");
+            Console.WriteLine("*        -> Pede ao utilizador para criar uma pasta numa   *");
+            Console.WriteLine("*        diretoria definida pelo programa.                 *");
+            Console.WriteLine("*        -> Mostra a diretoria onde foi criada a pasta e   *");
+            Console.WriteLine("*        onde o utilizador têm que colocar os documentos.  *");
+            Console.WriteLine("*    2 - Verificar Diretoria                               *");
+            Console.WriteLine("*        -> Verifica se a diretoria especificada no po     *");
+            Console.WriteLine("*    3 - Apagar Registos                                   *");
+            Console.WriteLine("*        -> Apaga o registo na base de dados do utilizador *");
+            Console.WriteLine("*        que estiver logado.                               *");
+            Console.WriteLine("*    4 - Ajuda                                             *");
+            Console.WriteLine("*        -> Lista as opções do programa.                   *");
+            Console.WriteLine("*    5 - Logout                                            *");
+            Console.WriteLine("*        -> Termina a sessão do utilizador logado.         *");
+            Console.WriteLine("*    0 - SAIR                                              *");
+            Console.WriteLine("*        -> Sai do programa.                               *");
+            Console.WriteLine("+----------------------------------------------------------+");
+            Console.WriteLine("");
+            Console.WriteLine("");
+            Console.Write("Pressione qualquer tecla para continuar...");
+            Console.ReadLine();
+        }
+
+        private static void PrintElementOfDictionary(string name, byte[] array)
         {
 
             Console.Write($"{name} : ");
@@ -241,11 +266,10 @@ namespace EstouAVer
 
             Console.WriteLine();
         }
-
     }
 }
 
-public class hash
+public class Hash
 {
     public string nameFile { get; set; }
 

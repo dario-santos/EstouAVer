@@ -2,12 +2,13 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace EstouAVer
 {
-    class HashCode
+    public class HashCodeSHA256
     {
-        public static IDictionary<string, byte[]> Generate(string directory)
+        public static IDictionary<string, byte[]> GenerateFromDir(string directory)
         {
             if (!Directory.Exists(directory))
             {
@@ -40,6 +41,21 @@ namespace EstouAVer
                 }
             }
             return hashValues;
+        }
+
+        public static string GenerateFromText(string text)
+        {
+            using (var sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(text));
+
+                var builder = new StringBuilder();
+
+                for (int i = 0; i < bytes.Length; i++)
+                    builder.Append(bytes[i].ToString("x2"));
+
+                return builder.ToString();
+            }
         }
     }
 }

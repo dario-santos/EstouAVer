@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Data.SQLite;
 
 namespace EstouAVer
@@ -9,7 +8,8 @@ namespace EstouAVer
     public static class conDB
     {
         public static string userLog;
-        public static void InsertDB(List<hash> Lista)
+
+        public static void InsertDB(List<Hash> Lista)
         {
             string sql;
             bool verify;
@@ -68,14 +68,12 @@ namespace EstouAVer
 
         }
 
-        public static bool CreatUser(string UserName, string hash, string salt)
+        public static bool CreatUser(string userName, string hash, string salt)
         {
-            string sql;
+            string rdUser = string.Empty;
 
-
-            string rdUser = "";
-            SQLiteConnection mdbConnection = new SQLiteConnection("Data Source=filessha256.sqlite;Version=3;");
-            sql = "select NameUser FROM User where User.NameUser = '" + UserName + "'";
+            var mdbConnection = new SQLiteConnection("Data Source=filessha256.sqlite;Version=3;");
+            string sql = "select NameUser FROM User where User.NameUser = '" + userName + "'";
 
             SQLiteCommand cmd = new SQLiteCommand(sql, mdbConnection);
             mdbConnection.Open();
@@ -87,21 +85,20 @@ namespace EstouAVer
             }
             mdbConnection.Close();
 
-            if (rdUser.Trim() == UserName.Trim())
+            if (rdUser.Trim() == userName.Trim())
             {
                 Console.Clear();
-                Console.WriteLine("\nERRO! O UTILIZADOR COM O USERNAME \"" + UserName + "\" JÁ EXISTE!");
+                Console.WriteLine("\nERRO! O UTILIZADOR COM O USERNAME \"" + userName + "\" JÁ EXISTE!");
                 Console.WriteLine("INTRODUZA UM NOVO USERNAME!");
                 return false;
             }
 
-            DataBase.InsertDB("INSERT INTO User (NameUser, Salt, Rep) values ('" + UserName + "', '" + salt + "',  '" + hash + "')  ");
+            DataBase.InsertDB("INSERT INTO User (NameUser, Salt, Rep) values ('" + userName + "', '" + salt + "',  '" + hash + "')  ");
 
             Console.Clear();
             Console.WriteLine("REGISTO EFETUADO COM SUCESSO!");
             return true;
         }
-
 
         public static bool Login(string UserName, string password)
         {
@@ -125,16 +122,14 @@ namespace EstouAVer
 
             string passSHA;
             //Calcula o SHA da password do user
-            Funcoes obj = new Funcoes();
-            passSHA = obj.GerarSha256(password);
+            passSHA = HashCodeSHA256.GenerateFromText(password);
 
             //Junta as duas string
             string final_sha_salt = passSHA + rdSalt;
 
             string autentication;
             //calcula o sha da pass com o salt
-            Funcoes sha = new Funcoes();
-            autentication = sha.GerarSha256(final_sha_salt);
+            autentication = HashCodeSHA256.GenerateFromText(final_sha_salt);
 
             string rep = "";
             sql = "select Rep FROM User where User.NameUser = '" + UserName + "'";

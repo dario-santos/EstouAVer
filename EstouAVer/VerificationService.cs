@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.ServiceProcess;
-using System.Text;
 using System.Timers;
 
 namespace EstouAVer
@@ -14,6 +8,8 @@ namespace EstouAVer
     {
         private readonly Timer timer;
         private string username;
+        private string password;
+
 
         public VerificationService()
         {
@@ -25,7 +21,7 @@ namespace EstouAVer
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
             string[] lines = new string[] {
-                    "Big brother is watching you, " + username
+                    "Big brother is watching you, " + username + "," + password 
                 };
 
             File.AppendAllLines(Directories.servicePath, lines);
@@ -33,7 +29,12 @@ namespace EstouAVer
 
         protected override void OnStart(string[] args)
         {
+            if (args.Length < 2)
+                this.OnStop();
+
             username = args[0];
+            password = args[1];
+
             timer.Start();
         }
 
