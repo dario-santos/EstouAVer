@@ -8,7 +8,7 @@ namespace EstouAVer
 {
     public class SHA256Code
     {
-        public static IDictionary<string, byte[]> GenerateFromDir(string directory)
+        public static IDictionary<string, string> GenerateFromDir(string directory)
         {
             if (!Directory.Exists(directory))
             {
@@ -18,7 +18,7 @@ namespace EstouAVer
 
             var dir = new DirectoryInfo(directory);
             var files = dir.GetFiles();
-            IDictionary<string, byte[]> hashValues = new Dictionary<string, byte[]>();
+            IDictionary<string, string> hashValues = new Dictionary<string, string>();
 
             using (var mySHA256 = SHA256.Create())
             {
@@ -27,7 +27,9 @@ namespace EstouAVer
                     try
                     {
                         var fileStream = fInfo.Open(FileMode.Open);
-                        hashValues.Add(fInfo.Name, mySHA256.ComputeHash(fileStream));
+                        var hash = mySHA256.ComputeHash(fileStream);
+
+                        hashValues.Add(fInfo.FullName, BitConverter.ToString(hash).Replace("-", ""));
                         fileStream.Close();
                     }
                     catch (IOException e)

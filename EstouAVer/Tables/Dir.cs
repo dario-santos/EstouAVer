@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EstouAVer.Tables
+﻿namespace EstouAVer.Tables
 {
     public class Dir
     {

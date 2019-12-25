@@ -29,6 +29,7 @@ namespace EstouAVer
 
         protected override void OnStart(string[] args)
         {
+            // User, Pass, Dir
             if (args.Length < 2)
                 this.OnStop();
 

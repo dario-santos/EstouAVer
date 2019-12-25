@@ -315,9 +315,7 @@ namespace EstouAVer
             Console.WriteLine(string.Empty);
             Console.WriteLine("Diretoria escolhida: " + directories[index]);
 
-            // Chamar a função que trata do resto
-
-
+            DataBaseFunctions.VerificarIntegridade(directories[index]);
         }
 
         private static void HelpMenu()
@@ -349,50 +347,5 @@ namespace EstouAVer
             Console.Write("Pressione qualquer tecla para continuar...");
             Console.ReadLine();
         }
-
-        private static void PrintElementOfDictionary(string name, byte[] array)
-        {
-
-            Console.Write($"{name} : ");
-            for (int i = 0; i < array.Length; i++)
-            {
-                Console.Write($"{array[i]:X2}");
-                if ((i % 4) == 3) Console.Write(" ");
-            }
-
-            Console.WriteLine();
-        }
     }
 }
-
-public class Hash
-{
-    public string nameFile { get; set; }
-
-    public string hash256 { get; set; }
-}
-
-
-
-//_______________________________________________________INSERIR HASH DOS FICHEIROS NO BASE DE DADOS_______________________________________________________//
-
-//List<hash> List = new List<hash>();
-
-//string directory = @"C:\Users\Frias\Documents\Estou a ver\FicheirosTxt";
-//var hashValues = HashCode.Generate(directory);
-
-//foreach (var hashValue in hashValues)
-//{
-//    hash obj = new hash();
-
-//    PrintElementOfDictionary(hashValue.Key, hashValue.Value);
-
-//    obj.nameFile = hashValue.Key;
-//    obj.hash256 = BitConverter.ToString(hashValue.Value).Replace("-", "");
-
-//    List.Add(obj);
-//}
-
-//conDB.InsertDB(List);
-
-////_______________________________________________________INSERIR HASH DOS FICHEIROS NO BASE DE DADOS_______________________________________________________//
