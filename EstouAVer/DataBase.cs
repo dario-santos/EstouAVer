@@ -17,17 +17,6 @@ namespace EstouAVer
                 mdbConnection.Close();
             }
         }
-
-        public static SQLiteDataReader SelectDB(string query)
-        {
-            using (SQLiteCommand command = mdbConnection.CreateCommand())
-            {
-                mdbConnection.Open();
-                
-                command.CommandText = query;
-                return command.ExecuteReader();
-            }
-        }
     }
 }
 

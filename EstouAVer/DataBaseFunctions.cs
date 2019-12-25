@@ -94,7 +94,6 @@ namespace EstouAVer
 
         public static bool Login(string username, string password)
         {
-            SQLiteConnection mdbConnection = AjudanteParaBD.mdbConnection;
             User user = AjudanteParaBD.SelectUserWithUsername(username);
 
             Console.Clear();
