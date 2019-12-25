@@ -7,15 +7,18 @@ using System.Text;
 namespace EstouAVer.Tests
 {
     [TestClass()]
-    public class HashCodeSHA256Tests
+    public class AjudanteParaBDTests
     {
         [TestMethod()]
-        public void GenerateFromTextTestCorrect()
+        public void SelectUserNoUser()
         {
-            string expected = "a8a2f6ebe286697c527eb35a58b5539532e9b3ae3b64d4eb0a46fb657b41562c";
-            string returned = SHA256Code.GenerateFromText("This is a test.");
+            Assert.IsNull(AjudanteParaBD.SelectUserWithUsername("noUser"));
+        }
 
-            Assert.AreEqual(expected, returned);
+        [TestMethod()]
+        public void SelectUserUserS4nd()
+        {
+            Assert.IsNotNull(AjudanteParaBD.SelectUserWithUsername("S4nd"));
         }
 
         [TestMethod()]

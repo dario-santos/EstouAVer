@@ -17,15 +17,15 @@ namespace EstouAVer
 
             do
             {
-                Console.WriteLine("Deseja criar uma pasta na raiz do programa sim(s) não(n)");
-                op = Console.ReadLine();
+                Console.WriteLine("Deseja criar uma pasta na raiz do programa sim(S) não(N)");
+                op = Console.ReadLine().ToLower();
 
 
                 if (op == "s")
                 {
-
                     string pasta;
 
+                    // Todo: Remove debug logs
                     Console.WriteLine("p1 = " + p1);
 
                     Console.WriteLine("Qual o nome da pasta que recebe os ficheiros a verificar?");
@@ -43,13 +43,12 @@ namespace EstouAVer
 
 
                     SQLiteConnection mdbConnection = new SQLiteConnection("Data Source=filessha256.sqlite;Version=3;");
-                    sql = "INSERT INTO Directory (nameDirectory, path, NameUser) VALUES ('" + pasta + "','" + p1 + "\\" + pasta + "', '" + conDB.userLog + "')";
+                    sql = "INSERT INTO Directory (nameDirectory, path, NameUser) VALUES ('" + pasta + "','" + p1 + "\\" + pasta + "', '" + DataBaseFunctions.userLog + "')";
 
                     SQLiteCommand cmd = new SQLiteCommand(sql, mdbConnection);
                     mdbConnection.Open();
                     cmd.ExecuteNonQuery();
                     mdbConnection.Close();
-
 
                     return p1 + "\\" + pasta;
                 }
@@ -88,7 +87,7 @@ namespace EstouAVer
 
 
                     SQLiteConnection mdbConnection = new SQLiteConnection("Data Source=filessha256.sqlite;Version=3;");
-                     sql = "INSERT INTO Directory (nameDirectory, path, NameUser) VALUES ('" + words[num-1] + "','" + p1 + "', '" + conDB.userLog + "')";
+                     sql = "INSERT INTO Directory (nameDirectory, path, NameUser) VALUES ('" + words[num-1] + "','" + p1 + "', '" + DataBaseFunctions.userLog + "')";
 
                     SQLiteCommand cmd = new SQLiteCommand(sql, mdbConnection);
                     mdbConnection.Open();

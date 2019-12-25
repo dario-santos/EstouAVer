@@ -6,7 +6,7 @@ using System.Text;
 
 namespace EstouAVer
 {
-    public class HashCodeSHA256
+    public class SHA256Code
     {
         public static IDictionary<string, byte[]> GenerateFromDir(string directory)
         {

@@ -2,7 +2,7 @@
 
 namespace EstouAVer
 {
-    class Funcoes
+    public class Funcoes
     {
         public static byte[] GenerateSalt()
         {

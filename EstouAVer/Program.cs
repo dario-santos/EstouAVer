@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EstouAVer.Tables;
+using System;
 using System.IO;
 using System.ServiceProcess;
 
@@ -12,7 +13,7 @@ namespace EstouAVer
             
             CreateDataBase();
 
-            Inicio();
+            FirstMenu();
         }
 
         private static void StartService() 
@@ -21,13 +22,13 @@ namespace EstouAVer
             Console.Clear();
         }
         
-        private static void CreateDataBase() 
+        private static void CreateDataBase()
         {
             if (!File.Exists(Directories.database))
                 AjudanteParaBD.OnCreate();
         }
 
-        private static void Inicio()
+        private static void FirstMenu()
         {
             bool tmp;
             string opcao;
@@ -75,7 +76,7 @@ namespace EstouAVer
             bool value;
             do
             {
-                Console.Clear();
+                //Console.Clear();
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("|                        Login                             |");
                 Console.WriteLine("+----------------------------------------------------------+");
@@ -86,7 +87,7 @@ namespace EstouAVer
                 Console.Write("Password: ");
                 password = Console.ReadLine();
 
-                value = conDB.Login(username, password);
+                value = DataBaseFunctions.Login(username, password);
             } while (value == false);
 
             Console.WriteLine("Bem vindo " +username +"!");
@@ -160,54 +161,42 @@ namespace EstouAVer
 
         private static void RegistoMenu()
         {
-            string userName;
-            string password;
-            string passSHA;
-            string passwordSalt_SHA;
-            string final_salt;
-            byte[] salt;
+            string username = string.Empty;
+            string password = string.Empty;
+            string rep      = string.Empty;
+            string salt     = string.Empty;
 
-            //Pedido ao user do nome e pass onde é verificada
+            User user = null;
+
             do
             {
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("|                       Registo                            |");
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("\nIntroduza os dados solicitados!");
-                Console.WriteLine("Username: ");
-                userName = Console.ReadLine();
+                Console.Write("Username:");
 
-                //verificação da passrword
-                bool verifica;
+                username = Console.ReadLine();
+
+                //verificação da password
                 do
                 {
-                    verifica = true;
-                    Console.WriteLine("Password:");
+                    Console.Write("Password:");
                     password = Console.ReadLine();
 
                     if (password.Length < 4)
-                    {
-                        Console.WriteLine("ERRO! A PASSWORD DEVE CONTER NO MÍNIMO 4 CARACTÉRES.");
-                        verifica = false;
-                    }
-                } while (verifica != true);
+                        Console.WriteLine("Erro! A password deve conter no minimo 4 caracteres.");
+                    
+                } while (password.Length < 4);
 
-                //Calcula o SHA da password do user
-                passSHA = HashCodeSHA256.GenerateFromText(password);
+                //Calcula o SALT
+                salt = BitConverter.ToString(Funcoes.GenerateSalt()).Replace("-", "");
 
-                //Calcula o SALT[32]
-                salt = Funcoes.GenerateSalt();
+                //calcula o REP
+                rep = SHA256Code.GenerateFromText(SHA256Code.GenerateFromText(password) + salt);
 
-                //converte o salt numa string
-                final_salt = BitConverter.ToString(salt).Replace("-", "");
-
-                //Junta as duas string
-                string final_sha_salt = passSHA + final_salt;
-
-                //calcula o sha da pass com o salt
-                passwordSalt_SHA = HashCodeSHA256.GenerateFromText(final_sha_salt);
-
-            } while(conDB.CreatUser(userName, passwordSalt_SHA, final_salt) == false);
+                user = new User(username, rep, salt);
+            } while(!DataBaseFunctions.Register(user));
 
             LoginMenu();
         }
