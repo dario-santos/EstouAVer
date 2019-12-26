@@ -3,7 +3,7 @@ Trabalho de grupo desenvolvido para a Unidade Curricular Segurança de Informát
 
 ## Serviço (Daemon)
 
-Os comandos de inicialização do serviço devem ser realizados pela linha de comandos (como administrador) o powershell não suporta o comando sc. 
+Os comandos de inicialização do serviço devem ser realizados pela linha de comandos (como administrador), o powershell não suporta o comando sc. 
 
 ### Instalar o serviço:
 ```
@@ -19,7 +19,7 @@ sc delete EstouAVerService
 ### Começar o serviço
 
 ```Powershell
-sc start EstouAVerService username
+sc start EstouAVerService username password directory
 ```
 
 ### Parar o serviço
