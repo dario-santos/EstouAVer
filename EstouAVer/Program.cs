@@ -232,7 +232,7 @@ namespace EstouAVer
                     Console.WriteLine(mainPath + "\\" + relativePath);
 
                     // Adicionar esta directoria à base de dados
-                    Dir dir = new Dir(relativePath, mainPath + "\\" + relativePath, DataBaseFunctions.userLog);
+                    Dir dir = new Dir(mainPath + "\\" + relativePath, DataBaseFunctions.userLog);
 
                     if (AjudanteParaBD.InsertDirectory(dir) == -1)
                     {
@@ -261,10 +261,8 @@ namespace EstouAVer
                         mainPath = Console.ReadLine();
                     }
 
-                    string[] words = mainPath.Split("\\");
-
                     // Adicionar esta directoria à base de dados
-                    Dir dir = new Dir(words[words.Length - 1], mainPath, DataBaseFunctions.userLog);
+                    Dir dir = new Dir(mainPath, DataBaseFunctions.userLog);
 
                     if (AjudanteParaBD.InsertDirectory(dir) == -1)
                     {

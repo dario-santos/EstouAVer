@@ -58,26 +58,35 @@ namespace EstouAVer
 
         public static void VerificarIntegridade(Dir dir)
         {
-            TFile tfile = null;
-            var files = SHA256Code.GenerateFromDir(dir.path);
-            
-            foreach (string file in files.Keys)
-            {
-                tfile = AjudanteParaBD.SelectFileWithPath(file);
+            var currentfiles = SHA256Code.GenerateFromDir(dir.path);
+            var databaseFiles = AjudanteParaBD.SelectFilesWithDir(dir.path);
 
-                if(tfile == null)
+            foreach (TFile f in databaseFiles)
+            {
+                //Se foi eliminado
+                if (!currentfiles.Keys.Contains(f.path))
                 {
-                    Console.WriteLine("Adicionado o ficheiro \'" + file + "\' a base de dados.");
-                    AjudanteParaBD.InsertFile(new TFile(file, files[file]));
+                    Console.WriteLine("Removido o ficheiro \'" + f.path + "\' da base de dados.");
+                    AjudanteParaBD.DeleteFile(f);
+
+                    continue;
                 }
-                else
+
+                // Se existir vamos ver se foi alterado
+                if (!currentfiles[f.path].Equals(f.sha256))
                 {
-                    if (!tfile.sha256.Equals(files[file]))
-                    {
-                        Console.WriteLine("O ficheiro \'" + file + "\' sofreu alteracoes.");
-                        AjudanteParaBD.UpdateFile(new TFile(file, files[file]));
-                    }
+                    Console.WriteLine("O ficheiro \'" + f.path + "\' sofreu alteracoes.");
+                    AjudanteParaBD.UpdateFile(new TFile(f.path, currentfiles[f.path], dir.path));
                 }
+
+                currentfiles.Remove(f.path);
+            }
+
+            // Se ainda houver ficheiros, são os que foram adicionados
+            foreach (string file in currentfiles.Keys)
+            {
+                Console.WriteLine("Adicionado o ficheiro \'" + file + "\' a base de dados.");
+                AjudanteParaBD.InsertFile(new TFile(file, currentfiles[file], dir.path)); 
             }
         }
     }

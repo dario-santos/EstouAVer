@@ -23,14 +23,13 @@ namespace EstouAVer
         public static readonly string USER_REP      = "rep";
 
         // Table DIRECTORY - Columns
-        public static readonly string DIRECTORY_ID            = "ID";
-        public static readonly string DIRECTORY_NAMEDIRECTORY = "nameDirectory";
         public static readonly string DIRECTORY_PATH          = "path";
         public static readonly string DIRECTORY_USERNAME      = "username";
 
         // Table FILESSHA256 - Columns
         public static readonly string FILE_PATH   = "path";
         public static readonly string FILE_SHA256 = "sha256";
+        public static readonly string FILE_DIR = "dir";
 
         // Table Create Statements
         // USER table create statement
@@ -43,16 +42,15 @@ namespace EstouAVer
 
         // DIRECTORY table create statement
         private static readonly string CREATE_TABLE_DIRECTORY = "CREATE TABLE " + TABLE_DIRECTORY + "("
-            + DIRECTORY_ID            + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-            + DIRECTORY_NAMEDIRECTORY + " TEXT, "
-            + DIRECTORY_PATH          + " TEXT, "
+            + DIRECTORY_PATH          + " TEXT PRIMARY KEY, "
             + DIRECTORY_USERNAME      + " TEXT "
             + ");";
 
         // FILESSHA256 table create statement
         private static readonly string CREATE_TABLE_FILE = "CREATE TABLE " + TABLE_FILE + "("
             + FILE_PATH + " TEXT PRIMARY KEY, "
-            + FILE_SHA256 + " TEXT "
+            + FILE_SHA256 + " TEXT, "
+            + FILE_DIR + " TEXT "
             + ");";
 
         public AjudanteParaBD() {}
@@ -60,7 +58,6 @@ namespace EstouAVer
         public static void OnCreate()
         {
             SQLiteConnection.CreateFile(Directories.database);
-
 
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
@@ -130,12 +127,11 @@ namespace EstouAVer
         public static int InsertDirectory(Dir dir)
         {
             using var connection = new SQLiteConnection(connectionString);
-            string sql = "INSERT INTO " + TABLE_DIRECTORY + " ( " + DIRECTORY_NAMEDIRECTORY + " , " + DIRECTORY_PATH + " , " + DIRECTORY_USERNAME + " ) VALUES (@NameDirectory, @Path, @UserName)";
+            string sql = "INSERT INTO " + TABLE_DIRECTORY + " ( " + DIRECTORY_PATH + " , " + DIRECTORY_USERNAME + " ) VALUES (@Path, @UserName)";
 
             connection.Open();
             using (var insertSQL = new SQLiteCommand(sql, connection))
             {
-                insertSQL.Parameters.AddWithValue("@NameDirectory", dir.nameDirectory);
                 insertSQL.Parameters.AddWithValue("@Path", dir.path);
                 insertSQL.Parameters.AddWithValue("@UserName", dir.username);
 
@@ -167,7 +163,7 @@ namespace EstouAVer
                         var directories = new List<Dir>();
                         while (rd.Read())
                         {
-                            directories.Add(new Dir((string)rd[DIRECTORY_NAMEDIRECTORY], (string)rd[DIRECTORY_PATH], (string)rd[DIRECTORY_USERNAME]));
+                            directories.Add(new Dir((string)rd[DIRECTORY_PATH], (string)rd[DIRECTORY_USERNAME]));
                         }
                         return directories;
                     }
@@ -193,7 +189,7 @@ namespace EstouAVer
                 {
                     try
                     {
-                        return rd.Read() ? new TFile((string)rd[FILE_PATH], (string)rd[FILE_SHA256]) : null;
+                        return rd.Read() ? new TFile((string)rd[FILE_PATH], (string)rd[FILE_SHA256], (string)rd[FILE_DIR]) : null;
                     }
                     catch (Exception ex)
                     {
@@ -206,13 +202,14 @@ namespace EstouAVer
         public static int InsertFile(TFile file)
         {
             using var connection = new SQLiteConnection(connectionString);
-            string sql = "INSERT INTO " + TABLE_FILE + " ( " + FILE_PATH + " , " + FILE_SHA256 + " ) VALUES (@Path, @Sha256)";
+            string sql = "INSERT INTO " + TABLE_FILE + " ( " + FILE_PATH + " , " + FILE_SHA256 +  " , " + FILE_DIR + " ) VALUES (@Path, @Sha256, @Dir)";
 
             connection.Open();
             using (var insertSQL = new SQLiteCommand(sql, connection))
             {
                 insertSQL.Parameters.AddWithValue("@Path", file.path);
                 insertSQL.Parameters.AddWithValue("@Sha256", file.sha256);
+                insertSQL.Parameters.AddWithValue("@Dir", file.dir);
 
                 try
                 {
@@ -236,6 +233,81 @@ namespace EstouAVer
             {
                 updateSQL.Parameters.AddWithValue("@Path", file.path);
                 updateSQL.Parameters.AddWithValue("@Sha256", file.sha256);
+
+                try
+                {
+                    return updateSQL.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.ToString());
+                }
+            }
+        }
+
+        public static Dir SelectDirWithPath(string path)
+        {
+            using var connection = new SQLiteConnection(connectionString);
+            string sql = "SELECT * FROM " + TABLE_DIRECTORY + " WHERE " + DIRECTORY_PATH + " = @Path;";
+
+            connection.Open();
+            using (var selectSQL = new SQLiteCommand(sql, connection))
+            {
+                selectSQL.Parameters.AddWithValue("@Path", path);
+
+                using (var rd = selectSQL.ExecuteReader())
+                {
+                    try
+                    {
+                        return rd.Read() ? new Dir((string)rd[DIRECTORY_PATH], (string)rd[DIRECTORY_USERNAME]) : null;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                }
+            }
+        }
+
+        public static List<TFile> SelectFilesWithDir(string dir)
+        {
+            using var connection = new SQLiteConnection(connectionString);
+            string sql = "SELECT * FROM " + TABLE_FILE + " WHERE " + FILE_DIR + " = @Dir;";
+
+            connection.Open();
+            using (var selectSQL = new SQLiteCommand(sql, connection))
+            {
+                selectSQL.Parameters.AddWithValue("@Dir", dir);
+
+                using (var rd = selectSQL.ExecuteReader())
+                {
+                    try
+                    {
+                        var directories = new List<TFile>();
+                        while (rd.Read())
+                        {
+                            directories.Add(new TFile((string)rd[FILE_PATH], (string)rd[FILE_SHA256], (string)rd[FILE_DIR]));
+                        }
+                        return directories;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                }
+            }
+        }
+
+        public static int DeleteFile(TFile file)
+        {
+            using var connection = new SQLiteConnection(connectionString);
+
+            string sql = "DELETE FROM " + TABLE_FILE + " WHERE " + FILE_PATH + " = @Path";
+
+            connection.Open();
+            using (var updateSQL = new SQLiteCommand(sql, connection))
+            {
+                updateSQL.Parameters.AddWithValue("@Path", file.path);
 
                 try
                 {
