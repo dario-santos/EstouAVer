@@ -3,7 +3,6 @@
     public class TFile
     {   
         public string path { get; }
-
         public string sha256 { get; }
         public string dir { get; }
 

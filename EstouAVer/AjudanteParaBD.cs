@@ -8,7 +8,7 @@ namespace EstouAVer
     public class AjudanteParaBD
     {
         //seleciona a base de dados
-        private static string connectionString { get; }  = "Data Source=" + Directories.database + ";Version=3;";
+        private static string connectionString { get; }  = "Data Source=" + Directories.databaseFrias + ";Version=3;";
 
         public static readonly string BD_NAME = "EstouAVer.sqlite";
 
@@ -57,7 +57,7 @@ namespace EstouAVer
 
         public static void OnCreate()
         {
-            SQLiteConnection.CreateFile(Directories.database);
+            SQLiteConnection.CreateFile(Directories.databaseFrias);
 
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
