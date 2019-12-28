@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 
-namespace qualquerCoisa
+namespace EstouAVer
 {
     public static class PassHashProvider{
 
@@ -12,101 +12,101 @@ namespace qualquerCoisa
     }
 
     //cria um hash pbkdf2 da password com salt
-    public static passwordHashContainer CreateHash(string pass){
+    //public static passwordHashContainer CreateHash(string pass){
 
-        using (var csprng = new RNGCryptoServiceProvider()){
+    //    using (var csprng = new RNGCryptoServiceProvider()){
 
-            //cria um salt único para cada pass
-            var salt = new byte[saltByteSize];
-            csprng.GetBytes(salt);
+    //        //cria um salt único para cada pass
+    //        var salt = new byte[saltByteSize];
+    //        csprng.GetBytes(salt);
 
-            //criar hash da pass e codificar os parâmetros
-            var hash = Pbkdf2(pass, salt, pbkdf2Iterations, hashByteSize);
+    //        //criar hash da pass e codificar os parâmetros
+    //        var hash = Pbkdf2(pass, salt, pbkdf2Iterations, hashByteSize);
 
-            return new passwordHashContainer(hash, salt);
-        }
-    }
+    //        return new passwordHashContainer(hash, salt);
+    //    }
+    //}
 
-    //cria o hash baseado na password recebida e o salt guardado
-    public static byte[] CreateHash(string pass, byte[] salt){
+    ////cria o hash baseado na password recebida e o salt guardado
+    //public static byte[] CreateHash(string pass, byte[] salt){
 
-        //extrai os parâmetros do hash
-        return Pbkdf2(pass, salt, pbkdf2Iterations, hashByteSize);
-    }
+    //    //extrai os parâmetros do hash
+    //    return Pbkdf2(pass, salt, pbkdf2Iterations, hashByteSize);
+    //}
 
-    //valida a pass se o hash estiver correto
-    public static bool validatePass(string pass, byte[] salt, byte[] correctHash){
+    ////valida a pass se o hash estiver correto
+    //public static bool validatePass(string pass, byte[] salt, byte[] correctHash){
 
-        //extrai os parâmetros do hash
-        byte[] testHash = Pbkdf2(pass, salt, pbkdf2Iterations, hashByteSize);
-        return compareHashes(correctHash, testHash);
-    }
+    //    //extrai os parâmetros do hash
+    //    byte[] testHash = Pbkdf2(pass, salt, pbkdf2Iterations, hashByteSize);
+    //    return compareHashes(correctHash, testHash);
+    //}
 
-    //compara dois hashes
-    public static bool compareHashes(byte[] array1, byte[] array2){
+    ////compara dois hashes
+    //public static bool compareHashes(byte[] array1, byte[] array2){
 
-        if(array1.Length != array2.Length)
-            return false;
+    //    if(array1.Length != array2.Length)
+    //        return false;
         
-        return !array1.Where((t,i) => t != array2[i]).Any();
-    }
+    //    return !array1.Where((t,i) => t != array2[i]).Any();
+    //}
 
-    //cria o hash PBKDF2-SHA256 de uma password
-    private static byte[] Pbkdf2(string pass, byte[] salt, int pbkdf2Iterations, int outBytes){
+    ////cria o hash PBKDF2-SHA256 de uma password
+    //private static byte[] Pbkdf2(string pass, byte[] salt, int pbkdf2Iterations, int outBytes){
 
-        using (var pbkdf2 = new Rfc2898DeriveBytes(pass,salt)){
+    //    using (var pbkdf2 = new Rfc2898DeriveBytes(pass,salt)){
 
-            pbkdf2.InterationCount = pbkdf2Iterations;
-            return pbkdf2.GetBytes(outBytes);
-        }
-    }
+    //        pbkdf2.InterationCount = pbkdf2Iterations;
+    //        return pbkdf2.GetBytes(outBytes);
+    //    }
+    //}
 
-    //contentor para o hash, salt e iterações da pass
-    public sealed class passwordHashContainer{
+    ////contentor para o hash, salt e iterações da pass
+    //public sealed class passwordHashContainer{
         
-        public passwordHashContainer(byte[] hashedPassword, byte[] salt){
+    //    public passwordHashContainer(byte[] hashedPassword, byte[] salt){
 
-            this.hashedPassword = hashedPassword;
-            this.salt = salt;
-        }
+    //        this.hashedPassword = hashedPassword;
+    //        this.salt = salt;
+    //    }
 
-        //vai buscar a pass
-        public byte[] hashedPassword{
+    //    //vai buscar a pass
+    //    public byte[] hashedPassword{
 
-            get; private set;
-        }
+    //        get; private set;
+    //    }
 
-        //vai buscar o salt
-        public byte[] salt{
+    //    //vai buscar o salt
+    //    public byte[] salt{
 
-            get; private set;
-        }
-    }
+    //        get; private set;
+    //    }
+    //}
 
-    //métodos para converter entre strings hexadecimais e byte arrays
-    public static class byteConverter{
+    ////métodos para converter entre strings hexadecimais e byte arrays
+    //public static class byteConverter{
 
-        //converte hex string para byte array
-        public static byte[] getHexBytes(string hexString){
+    //    //converte hex string para byte array
+    //    public static byte[] getHexBytes(string hexString){
 
-            var bytes = new byte[hexString.Length / 2];
-            for(var i = 0; i < bytes.Length; i++){
+    //        var bytes = new byte[hexString.Length / 2];
+    //        for(var i = 0; i < bytes.Length; i++){
                 
-                var strPos = i * 2;
-                var chars = hexString.Substring(strPos, 2);
-                bytes[i] = Convert.ToByte(chars, 16);
-            }
+    //            var strPos = i * 2;
+    //            var chars = hexString.Substring(strPos, 2);
+    //            bytes[i] = Convert.ToByte(chars, 16);
+    //        }
 
-            return bytes;
-        }
+    //        return bytes;
+    //    }
 
-        //converte de byte array para hex string
-        public static string getHexString(byte[] bytes){
+    //    //converte de byte array para hex string
+    //    public static string getHexString(byte[] bytes){
 
-            return BitConverter.ToString(bytes).Replace("-", "").ToUpper();
-        }
+    //        return BitConverter.ToString(bytes).Replace("-", "").ToUpper();
+    //    }
 
-    }
+    //}
 }
 
 /* 

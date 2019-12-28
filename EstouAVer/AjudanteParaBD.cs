@@ -16,6 +16,7 @@ namespace EstouAVer
         public static readonly string TABLE_USER      = "User";
         public static readonly string TABLE_DIRECTORY = "Directory";
         public static readonly string TABLE_FILE      = "File";
+        public static readonly string TABLE_FILEHMAC = "FileHMAC";
 
         // Table USER - Columns
         public static readonly string USER_USERNAME = "username";
@@ -30,6 +31,13 @@ namespace EstouAVer
         public static readonly string FILE_PATH   = "path";
         public static readonly string FILE_SHA256 = "sha256";
         public static readonly string FILE_DIR = "dir";
+
+        //Table FILESHMAC - Colums
+        public static readonly string FILE_PATHHMAC = "path";
+        public static readonly string FILE_HMAC = "hmac";
+        public static readonly string FILE_DIRH = "dir";
+
+
 
         // Table Create Statements
         // USER table create statement
@@ -53,6 +61,13 @@ namespace EstouAVer
             + FILE_DIR + " TEXT "
             + ");";
 
+        //FileHmac table creat statement
+        private static readonly string CREATE_TABLE_FILEHMAC = "CREAT TABLE " + TABLE_FILEHMAC + "("
+            + FILE_PATHHMAC + " TEXT PRIMARY KEY, "
+            + FILE_HMAC + "TEXT, "
+            + FILE_DIRH + " TEXT, "
+            + ");";
+
         public AjudanteParaBD() {}
 
         public static void OnCreate()
@@ -73,6 +88,10 @@ namespace EstouAVer
                 using (var c3 = new SQLiteCommand(CREATE_TABLE_FILE, connection))
                 {
                     c3.ExecuteNonQuery();
+                }
+                using (var c4 = new SQLiteCommand(CREATE_TABLE_FILEHMAC, connection))
+                {
+                    c4.ExecuteNonQuery();
                 }
             }
         }
@@ -123,6 +142,8 @@ namespace EstouAVer
                 }
             }
         }
+
+
 
         public static int InsertDirectory(Dir dir)
         {
@@ -209,6 +230,29 @@ namespace EstouAVer
             {
                 insertSQL.Parameters.AddWithValue("@Path", file.path);
                 insertSQL.Parameters.AddWithValue("@Sha256", file.sha256);
+                insertSQL.Parameters.AddWithValue("@Dir", file.dir);
+
+                try
+                {
+                    return insertSQL.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.ToString());
+                }
+            }
+        }
+
+        public static int InsertFileHMAC(FileHmac file)
+        {
+            using var connection = new SQLiteConnection(connectionString);
+            string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILE_PATHHMAC + " , " + FILE_HMAC + " , " + FILE_DIRH + " ) VALUES (@Path, @hamc, @Dir)";
+
+            connection.Open();
+            using (var insertSQL = new SQLiteCommand(sql, connection))
+            {
+                insertSQL.Parameters.AddWithValue("@Path", file.path);
+                insertSQL.Parameters.AddWithValue("@hmac", file.hmac);
                 insertSQL.Parameters.AddWithValue("@Dir", file.dir);
 
                 try

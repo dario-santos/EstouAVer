@@ -11,18 +11,18 @@ namespace EstouAVer
         private static void Main(string[] args)
         {
             StartService();
-            
+
             CreateDataBase();
 
             FirstMenu();
         }
 
-        private static void StartService() 
+        private static void StartService()
         {
             ServiceBase.Run(new VerificationService());
             Console.Clear();
         }
-        
+
         private static void CreateDataBase()
         {
             if (!File.Exists(Directories.database))
@@ -54,7 +54,7 @@ namespace EstouAVer
                     Console.WriteLine("\nOpcao invalida. Introduza uma das opcoes enunciadas!");
                     tmp = false;
                 }
-            } while(!tmp);
+            } while (!tmp);
 
             //opções depois do user escolher no meu
             switch (int.Parse(opcao))
@@ -73,17 +73,19 @@ namespace EstouAVer
 
         private static void LoginMenu()
         {
-            string username = string.Empty; 
+            string username = string.Empty;
             string password = string.Empty;
 
             bool value;
+            string SN = string.Empty;
+
             do
             {
                 //Console.Clear();
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("|                        Login                             |");
                 Console.WriteLine("+----------------------------------------------------------+");
-                
+
                 Console.WriteLine("\nIntroduza os dados solicitados!");
                 Console.Write("Username: ");
                 username = Console.ReadLine();
@@ -91,13 +93,27 @@ namespace EstouAVer
                 password = Console.ReadLine();
 
                 value = DataBaseFunctions.Login(username, password);
+
+                if(value == false)
+                {
+                    Console.WriteLine("Deseja registar um novo utilizador? Sim(s) Não(n)");
+                    SN = Console.ReadLine();
+
+                    if(SN.Equals("s"))
+                    {
+                        Console.Clear();
+                        RegistoMenu();
+                    }
+
+                }
+
             } while (value == false);
 
-            Console.WriteLine("Bem vindo " + username +"!");
+            Console.WriteLine("Bem vindo " + username + "!");
             MainMenu(username);
         }
 
-        private static void RegistoMenu()
+        public static void RegistoMenu()
         {
             string username = string.Empty;
             string password = string.Empty;
@@ -153,7 +169,7 @@ namespace EstouAVer
                 Console.WriteLine("|                         MENU                             |");
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("");
-                Console.WriteLine("1 - Ler Diretoria");
+                Console.WriteLine("1 - Adicionar Diretoria De Verificação");
                 Console.WriteLine("2 - Verificar Diretoria");
                 Console.WriteLine("3 - Apagar Registos");
                 Console.WriteLine("4 - Ajuda");
@@ -199,6 +215,42 @@ namespace EstouAVer
                     Console.WriteLine("5 - Logout");
                     break;
             }
+        }
+
+        public void tipoVerificação()
+        {
+            bool b;
+            string opcao;
+            int result_b;
+
+            do
+            {
+                b = true;
+                Console.WriteLine("+----------------------------------------------------------+");
+                Console.WriteLine("|                         MENU                             |");
+                Console.WriteLine("+----------------------------------------------------------+");
+                Console.WriteLine("");
+                Console.WriteLine("1 - Ler Diretoria");
+                Console.WriteLine("2 - Verificar Diretoria");
+                Console.WriteLine("3 - Apagar Registos");
+                Console.WriteLine("4 - Ajuda");
+                Console.WriteLine("5 - Logout");
+                Console.WriteLine("");
+                Console.WriteLine("0 - Sair");
+                Console.Write("\nOpcao escolhida: ");
+                opcao = Console.ReadLine();
+
+                if (opcao != "1" && opcao != "2" && opcao != "3" && opcao != "4" && opcao != "5" && opcao != "0")
+                {
+                    Console.Clear();
+                    Console.WriteLine("\nOpcao invalida. Introduza uma das opcoes enunciadas!");
+                    b = false;
+                }
+            } while (b != true);
+
+
+
+
         }
 
         private static string ReceberDiretoria()
@@ -276,7 +328,7 @@ namespace EstouAVer
             } while (true);
         }
 
-        private static void VerificarDiretoria() 
+        private static void VerificarDiretoria()
         {
             // Mostrar lista de diretorias do utilizador
             Console.WriteLine("+----------------------------------------------------------+");
@@ -297,18 +349,18 @@ namespace EstouAVer
                 return;
             }
 
-            for (int i = 0 ; i < directories.Count ; i++)
+            for (int i = 0; i < directories.Count; i++)
                 Console.WriteLine(i + " - " + directories[i].path);
-            
+
             do
             {
                 Console.Write("Diretoria a verificar: ");
                 index = int.Parse(Console.ReadLine());
 
-                if(index > directories.Count - 1 || index < 0)
+                if (index > directories.Count - 1 || index < 0)
                     Console.WriteLine("Erro! Escolha uma opcao valida.");
 
-            } while(index > directories.Count - 1 || index < 0);
+            } while (index > directories.Count - 1 || index < 0);
 
             Console.WriteLine(string.Empty);
             Console.WriteLine("Diretoria escolhida: " + directories[index]);

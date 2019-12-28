@@ -11,15 +11,15 @@ namespace EstouAVer
         {
             //Console.Clear();
 
-            if(AjudanteParaBD.SelectUserWithUsername(user.username) != null)
+            if (AjudanteParaBD.SelectUserWithUsername(user.username) != null)
             {
-                Console.WriteLine("\nErro! O username \"" + user.username + "\" nao esta disponivel!");
+                Console.WriteLine("\nErro! O username \"" + user.username + "\" não está disponivel!");
                 Console.WriteLine("Por-favor introduza outro username!");
 
                 return false;
             }
 
-            if(AjudanteParaBD.InsertUser(user) != -1)
+            if (AjudanteParaBD.InsertUser(user) != -1)
             {
                 Console.WriteLine("Registo efetuado com sucesso!");
                 return true;
@@ -31,12 +31,15 @@ namespace EstouAVer
 
         public static bool Login(string username, string password)
         {
+            string op = string.Empty;
+
             User user = AjudanteParaBD.SelectUserWithUsername(username);
 
             Console.Clear();
             if (user == null)
             {
                 Console.WriteLine("\nErro! O utilizador inserido nao existe.");
+          
                 return false;
             }
 
@@ -86,7 +89,7 @@ namespace EstouAVer
             foreach (string file in currentfiles.Keys)
             {
                 Console.WriteLine("Adicionado o ficheiro \'" + file + "\' a base de dados.");
-                AjudanteParaBD.InsertFile(new TFile(file, currentfiles[file], dir.path)); 
+                AjudanteParaBD.InsertFile(new TFile(file, currentfiles[file], dir.path));
             }
         }
     }
