@@ -1,0 +1,45 @@
+################################################################################
+
+-----FILE ENCRYPT METHOD:-----
+
+    ->password a usar
+    string password = "dibvsdjsdkjsdiuvb";
+
+    ->pin password to files
+    GCHandle gch = GCHandle.Alloc(password, GCHandleType.Pinned);
+
+    ->cifrar ficheiro
+    FileEncrypt(@"C:\Users\harri\OneDrive\SlavCoding\SI\EstouAVer\ficheiro_da_base_de_dados");
+
+    ->apagar a password da memória
+    ZeroMemory(gch.AddrOfPinnedObject(), password.Length * 2);
+    gch.Free();
+
+    ->para verfificar que a password foi apagada a linha seguinte deve imprimir null
+    Console.WriteLine("A password que introduziu deve ter sido nada: " + password);
+ 
+################################################################################
+
+
+
+################################################################################
+
+-----FILE DECRYPT METHOD:------
+
+    ->password a usar
+    string password = "dibvsdjsdkjsdiuvb";
+
+    ->pin password to files
+    GCHandle gch = GCHandle.Alloc(password, GCHandleType.Pinned);
+
+    ->cifrar ficheiro
+    FileDecrypt(@"C:\Users\harri\OneDrive\SlavCoding\ficheiro.aes", @"C:\Users\harri\OneDrive\SlavCoding\SI\EstouAVer\ficheiro_da_base_de_dados");
+
+    ->apagar a password da memória
+    ZeroMemory(gch.AddrOfPinnedObject(), password.Length * 2);
+    gch.Free();
+
+    ->para verfificar que a password foi apagada a linha seguinte deve imprimir null
+    Console.WriteLine("A password que introduziu deve ter sido nada: " + password);
+ 
+################################################################################
