@@ -25,7 +25,7 @@ namespace EstouAVer
 
         private static void CreateDataBase()
         {
-            if (!File.Exists(Directories.database))
+            if (!File.Exists(Directories.databaseFrias))
                 AjudanteParaBD.OnCreate();
         }
 
@@ -200,7 +200,8 @@ namespace EstouAVer
                     MainMenu(username);
                     break;
                 case 2:
-                    VerificarDiretoria();
+                    EscolherVerificação(username);
+                    //VerificarDiretoria();
                     MainMenu(username);
                     break;
                 case 3:
@@ -327,6 +328,67 @@ namespace EstouAVer
 
             } while (true);
         }
+
+
+        public static void EscolherVerificação(string username)
+        {
+
+            string opcao;
+            bool flag = true;
+            int result_b;
+            do
+            {
+
+
+
+                Console.WriteLine("+----------------------------------------------------------+");
+                Console.WriteLine("|               Tipo de Directoria                         |");
+                Console.WriteLine("+----------------------------------------------------------+");
+
+                Console.WriteLine("Deverá escolher uma opeção para verificar os ficheiros!");
+                Console.WriteLine("1 - Criar o SHA256 dos ficheiros que estão na sua directoria.");
+                Console.WriteLine("2 - Criar um HMAC dos ficheiros que estão na sua directoria.");
+                Console.WriteLine("0 - Voltar para traz");
+                Console.WriteLine("");
+                Console.Write("\nOpcao escolhida: ");
+                opcao = Console.ReadLine();
+
+                if (opcao != "1" && opcao != "2" && opcao != "0")
+                {
+                    Console.Clear();
+                    Console.WriteLine("\nOpcao invalida. Introduza uma das opcoes enunciadas!");
+                    flag = false;
+                }
+
+
+            } while (flag != true);
+
+
+            //opções depois do user escolher no meu
+            result_b = int.Parse(opcao);
+            switch (result_b)
+            {
+                case 0:
+                    Console.Clear();
+                    Console.WriteLine("Adeus!");
+                    break;
+                case 1:
+                    VerificarDiretoria();
+                    MainMenu(username);
+                    break;
+                case 2:
+                    EscolherVerificação(username);
+               
+                    MainMenu(username);
+                    break;
+              
+            }
+
+
+
+
+        }
+
 
         private static void VerificarDiretoria()
         {

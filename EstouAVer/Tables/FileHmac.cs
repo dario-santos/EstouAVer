@@ -11,11 +11,14 @@ namespace EstouAVer.Tables
         public string hmac { get; }
         public string dir { get; }
 
-        public FileHmac(string path, string hmac, string dir)
+        public string UserName { get; }
+
+        public FileHmac(string path, string hmac, string dir, string UserNAme)
         {
             this.path = path;
             this.hmac = hmac;
             this.dir = dir;
+            this.UserName = UserNAme;
         }
     }
 }

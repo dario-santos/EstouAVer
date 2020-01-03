@@ -62,10 +62,11 @@ namespace EstouAVer
             + ");";
 
         //FileHmac table creat statement
-        private static readonly string CREATE_TABLE_FILEHMAC = "CREAT TABLE " + TABLE_FILEHMAC + "("
+        private static readonly string CREATE_TABLE_FILEHMAC = "CREATE TABLE " + TABLE_FILEHMAC + "("
             + FILE_PATHHMAC + " TEXT PRIMARY KEY, "
             + FILE_HMAC + "TEXT, "
             + FILE_DIRH + " TEXT, "
+            + USER_USERNAME + " TEXT "
             + ");";
 
         public AjudanteParaBD() {}
@@ -246,7 +247,7 @@ namespace EstouAVer
         public static int InsertFileHMAC(FileHmac file)
         {
             using var connection = new SQLiteConnection(connectionString);
-            string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILE_PATHHMAC + " , " + FILE_HMAC + " , " + FILE_DIRH + " ) VALUES (@Path, @hamc, @Dir)";
+            string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILE_PATHHMAC + " , " + FILE_HMAC + " , " + FILE_DIRH + ", " + USER_USERNAME + " ) VALUES (@Path, @hamc, @Dir, @User)";
 
             connection.Open();
             using (var insertSQL = new SQLiteCommand(sql, connection))
@@ -254,6 +255,7 @@ namespace EstouAVer
                 insertSQL.Parameters.AddWithValue("@Path", file.path);
                 insertSQL.Parameters.AddWithValue("@hmac", file.hmac);
                 insertSQL.Parameters.AddWithValue("@Dir", file.dir);
+                insertSQL.Parameters.AddWithValue("@User", file.UserName);
 
                 try
                 {
