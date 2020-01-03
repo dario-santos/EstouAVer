@@ -249,9 +249,6 @@ namespace EstouAVer
                 }
             } while (b != true);
 
-
-
-
         }
 
         private static string ReceberDiretoria()
@@ -300,7 +297,7 @@ namespace EstouAVer
                 else if (option.Equals("n"))
                 {
 
-                    Console.WriteLine("Introduza o cominho absoluto da diretoria que pretende verificar.");
+                    Console.WriteLine("Introduza o caminho absoluto da diretoria que pretende verificar.");
                     Console.WriteLine("Ex.: C:/Caminho/Completo/Ate/A/Diretoria");
                     Console.Write("Introduzido:");
 
@@ -308,7 +305,7 @@ namespace EstouAVer
 
                     while (!Directory.Exists(mainPath))
                     {
-                        Console.WriteLine("O caminho introduzido nao existe na sua maquina");
+                        Console.WriteLine("O caminho introduzido não existe na sua maquina");
                         Console.WriteLine("Introduza o caminho absoluto da pasta que você deseja verificar");
                         Console.Write("Introduzido:");
                         mainPath = Console.ReadLine();
@@ -319,7 +316,7 @@ namespace EstouAVer
 
                     if (AjudanteParaBD.InsertDirectory(dir) == -1)
                     {
-                        Console.WriteLine("Erro ao adicionar a diretoria a base de dados.");
+                        Console.WriteLine("Erro ao adicionar a diretoria na base de dados.");
                         return string.Empty;
                     }
 
@@ -356,7 +353,7 @@ namespace EstouAVer
                 if (opcao != "1" && opcao != "2" && opcao != "0")
                 {
                     Console.Clear();
-                    Console.WriteLine("\nOpcao invalida. Introduza uma das opcoes enunciadas!");
+                    Console.WriteLine("\nOpcao invalida. Introduza uma das opcões enunciadas!");
                     flag = false;
                 }
 
@@ -384,11 +381,7 @@ namespace EstouAVer
 
             }
 
-
-
-
         }
-
 
         public static void filesHmac(string username)
         {
@@ -401,7 +394,6 @@ namespace EstouAVer
             Console.WriteLine("+----------------------------------------------------------+");
    
             List<Dir> directories = AjudanteParaBD.SelectDirsWithUsername(DataBaseFunctions.userLog);
-
 
             if (directories == null)
             {
@@ -418,13 +410,11 @@ namespace EstouAVer
                 Console.WriteLine(i + " - " + directories[i].path);
             do
             {
-
                 Console.WriteLine("Escolha uma direcotria!");
                 option = Console.ReadLine();
 
                 rdopiton = int.Parse(option);  
                 
-
             } while (rdopiton > i);
 
             Console.WriteLine("Introduza a password com que pretende gerar os HMAC");
@@ -432,18 +422,13 @@ namespace EstouAVer
             passwd = Console.ReadLine();
 
             var hash = HMac.hmac(directories[rdopiton].path, passwd);
-
-            
-
-        
+   
             //CASO QUEIRAM VER O RESULTADO
             foreach (var x in hash)
             {
                 Console.WriteLine(x);
                 AjudanteParaBD.InsertFileHMAC(new FileHmac(x.Key, x.Value, username));
             }
-
-
 
         }
 
