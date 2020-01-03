@@ -94,12 +94,12 @@ namespace EstouAVer
 
                 value = DataBaseFunctions.Login(username, password);
 
-                if(value == false)
+                if (value == false)
                 {
                     Console.WriteLine("Deseja registar um novo utilizador? Sim(s) Não(n)");
                     SN = Console.ReadLine();
 
-                    if(SN.Equals("s"))
+                    if (SN.Equals("s"))
                     {
                         Console.Clear();
                         RegistoMenu();
@@ -377,17 +377,76 @@ namespace EstouAVer
                     MainMenu(username);
                     break;
                 case 2:
-                    EscolherVerificação(username);
-               
+                    filesHmac(username);
+
                     MainMenu(username);
                     break;
-              
+
             }
 
 
 
 
         }
+
+
+        public static void filesHmac(string username)
+        {
+            string passwd;
+            string option;
+            int rdopiton;
+            int i;
+            Console.WriteLine("+----------------------------------------------------------+");
+            Console.WriteLine("|      Gerar Hmac dos ficheriros da directoria             |");
+            Console.WriteLine("+----------------------------------------------------------+");
+   
+            List<Dir> directories = AjudanteParaBD.SelectDirsWithUsername(DataBaseFunctions.userLog);
+
+
+            if (directories == null)
+            {
+                Console.WriteLine("Erro durante a leitura da base de dados.");
+                return;
+            }
+            if (directories.Count == 0)
+            {
+                Console.WriteLine("Erro! Voce nao tem nenhuma diretoria adicionada.");
+                return;
+            }
+
+            for (i = 0; i < directories.Count; i++)
+                Console.WriteLine(i + " - " + directories[i].path);
+            do
+            {
+
+                Console.WriteLine("Escolha uma direcotria!");
+                option = Console.ReadLine();
+
+                rdopiton = int.Parse(option);  
+                
+
+            } while (rdopiton > i);
+
+            Console.WriteLine("Introduza a password com que pretende gerar os HMAC");
+
+            passwd = Console.ReadLine();
+
+            var hash = HMac.hmac(directories[rdopiton].path, passwd);
+
+            
+
+        
+            //CASO QUEIRAM VER O RESULTADO
+            foreach (var x in hash)
+            {
+                Console.WriteLine(x);
+                AjudanteParaBD.InsertFileHMAC(new FileHmac(x.Key, x.Value, username));
+            }
+
+
+
+        }
+
 
 
         private static void VerificarDiretoria()

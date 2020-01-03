@@ -8,27 +8,27 @@ namespace EstouAVer
     public class AjudanteParaBD
     {
         //seleciona a base de dados
-        private static string connectionString { get; }  = "Data Source=" + Directories.databaseFrias + ";Version=3;";
+        private static string connectionString { get; } = "Data Source=" + Directories.databaseFrias + ";Version=3;";
 
         public static readonly string BD_NAME = "EstouAVer.sqlite";
 
         // Table Names
-        public static readonly string TABLE_USER      = "User";
+        public static readonly string TABLE_USER = "User";
         public static readonly string TABLE_DIRECTORY = "Directory";
-        public static readonly string TABLE_FILE      = "File";
+        public static readonly string TABLE_FILE = "File";
         public static readonly string TABLE_FILEHMAC = "FileHMAC";
 
         // Table USER - Columns
         public static readonly string USER_USERNAME = "username";
-        public static readonly string USER_SALT     = "salt";
-        public static readonly string USER_REP      = "rep";
+        public static readonly string USER_SALT = "salt";
+        public static readonly string USER_REP = "rep";
 
         // Table DIRECTORY - Columns
-        public static readonly string DIRECTORY_PATH          = "path";
-        public static readonly string DIRECTORY_USERNAME      = "username";
+        public static readonly string DIRECTORY_PATH = "path";
+        public static readonly string DIRECTORY_USERNAME = "username";
 
         // Table FILESSHA256 - Columns
-        public static readonly string FILE_PATH   = "path";
+        public static readonly string FILE_PATH = "path";
         public static readonly string FILE_SHA256 = "sha256";
         public static readonly string FILE_DIR = "dir";
 
@@ -43,15 +43,15 @@ namespace EstouAVer
         // USER table create statement
         private static readonly string CREATE_TABLE_USER = "CREATE TABLE " + TABLE_USER + "("
             + USER_USERNAME + " TEXT NOT NULL,"
-            + USER_SALT     + " TEXT,"
-            + USER_REP      + " TEXT,"
+            + USER_SALT + " TEXT,"
+            + USER_REP + " TEXT,"
             + "PRIMARY KEY(" + USER_USERNAME + ")"
             + ");";
 
         // DIRECTORY table create statement
         private static readonly string CREATE_TABLE_DIRECTORY = "CREATE TABLE " + TABLE_DIRECTORY + "("
-            + DIRECTORY_PATH          + " TEXT PRIMARY KEY, "
-            + DIRECTORY_USERNAME      + " TEXT "
+            + DIRECTORY_PATH + " TEXT PRIMARY KEY, "
+            + DIRECTORY_USERNAME + " TEXT "
             + ");";
 
         // FILESSHA256 table create statement
@@ -64,12 +64,11 @@ namespace EstouAVer
         //FileHmac table creat statement
         private static readonly string CREATE_TABLE_FILEHMAC = "CREATE TABLE " + TABLE_FILEHMAC + "("
             + FILE_PATHHMAC + " TEXT PRIMARY KEY, "
-            + FILE_HMAC + "TEXT, "
-            + FILE_DIRH + " TEXT, "
+            + FILE_HMAC + " TEXT, "
             + USER_USERNAME + " TEXT "
             + ");";
 
-        public AjudanteParaBD() {}
+        public AjudanteParaBD() { }
 
         public static void OnCreate()
         {
@@ -117,7 +116,7 @@ namespace EstouAVer
                     {
                         throw new Exception(ex.Message);
                     }
-                }       
+                }
             }
         }
 
@@ -149,7 +148,7 @@ namespace EstouAVer
         public static int InsertDirectory(Dir dir)
         {
             using var connection = new SQLiteConnection(connectionString);
-            string sql = "INSERT INTO " + TABLE_DIRECTORY + " ( " + DIRECTORY_PATH + " , " + DIRECTORY_USERNAME + " ) VALUES (@Path, @UserName)";
+            string sql = "INSERT INTO " + TABLE_DIRECTORY + " (" + DIRECTORY_PATH + " , " + DIRECTORY_USERNAME + ") VALUES (@Path, @UserName)";
 
             connection.Open();
             using (var insertSQL = new SQLiteCommand(sql, connection))
@@ -224,7 +223,7 @@ namespace EstouAVer
         public static int InsertFile(TFile file)
         {
             using var connection = new SQLiteConnection(connectionString);
-            string sql = "INSERT INTO " + TABLE_FILE + " ( " + FILE_PATH + " , " + FILE_SHA256 +  " , " + FILE_DIR + " ) VALUES (@Path, @Sha256, @Dir)";
+            string sql = "INSERT INTO " + TABLE_FILE + " ( " + FILE_PATH + " , " + FILE_SHA256 + " , " + FILE_DIR + " ) VALUES (@Path, @Sha256, @Dir)";
 
             connection.Open();
             using (var insertSQL = new SQLiteCommand(sql, connection))
@@ -247,14 +246,13 @@ namespace EstouAVer
         public static int InsertFileHMAC(FileHmac file)
         {
             using var connection = new SQLiteConnection(connectionString);
-            string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILE_PATHHMAC + " , " + FILE_HMAC + " , " + FILE_DIRH + ", " + USER_USERNAME + " ) VALUES (@Path, @hamc, @Dir, @User)";
+            string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILE_PATHHMAC + " , " + FILE_HMAC + " ,  " + USER_USERNAME + " ) VALUES (@Path, @hmac, @User)";
 
             connection.Open();
             using (var insertSQL = new SQLiteCommand(sql, connection))
             {
                 insertSQL.Parameters.AddWithValue("@Path", file.path);
                 insertSQL.Parameters.AddWithValue("@hmac", file.hmac);
-                insertSQL.Parameters.AddWithValue("@Dir", file.dir);
                 insertSQL.Parameters.AddWithValue("@User", file.UserName);
 
                 try
@@ -343,6 +341,8 @@ namespace EstouAVer
                 }
             }
         }
+
+
 
         public static int DeleteFile(TFile file)
         {
