@@ -1,130 +1,153 @@
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 
-//[DllImport("KERNEL32.DLL", EntryPoint = "RtlZeroMemory")]
-//public static extern bool ZeroMemory(IntPtr Destination, int Length);
 
-////gera um salt aleatório que será usado para cifrar o ficherio da base de dados
-//public static byte[] generateRandomSalt(){
 
-//    byte[] data = new byte[32];
+namespace EstouAVer
+{
 
-//    using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider()){
 
-//        for(int i = 0; i < 10; i++)
-//            rng.GetBytes(data);
-//    }
+    //[DllImport("KERNEL32.DLL", EntryPoint = "RtlZeroMemory")]
+    //public static extern bool ZeroMemory(IntPtr Destination, int Length);
 
-//    return data;
-//}
+    ////gera um salt aleatório que será usado para cifrar o ficherio da base de dados
+    //public static byte[] generateRandomSalt()
+    //{
 
-////cifra ficheiro com a password dada
-////feito com ajuda de 
-////http://stackoverflow.com/questions/27645527/aes-encryption-on-large-files
-//private void FileEncrypt(string inputFile, string password){
+    //    byte[] data = new byte[32];
 
-//    byte[] salt = generateRandomSalt();
+    //    using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+    //    {
 
-//    FileStream fs = new FileStream(inputFile + ".aes", FileMode.Create);
+    //        for (int i = 0; i < 10; i++)
+    //            rng.GetBytes(data);
+    //    }
 
-//    //converter string pass para byte array
-//    byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+    //    return data;
+    //}
 
-//    RijndaelManaged AES = new RijndaelManaged();
-//    AES.KeySize = 256;
-//    AES.BlockSize = 128;
-//    AES.Padding = PaddingMode.PKCS7;
+    ////cifra ficheiro com a password dada
+    ////feito com ajuda de 
+    ////http://stackoverflow.com/questions/27645527/aes-encryption-on-large-files
+    //private void FileEncrypt(string inputFile, string password)
+    //{
 
-//    var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
-//    AES.Key = key.GetBytes(AES.KeySize / 8);
-//    AES.IV = key.GetBytes(AES.BlockSize / 8);
+    //    byte[] salt = generateRandomSalt();
 
-//    //usamos o modo CBC porque é pedido no enunciado do projeto
-//    //segundo certas fontes o CFB é mais seguro
-//    AES.Mode = CipherMode.CBC;
+    //    FileStream fs = new FileStream(inputFile + ".aes", FileMode.Create);
 
-//    fs.Write(salt, 0, salt.Length);
+    //    //converter string pass para byte array
+    //    byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
 
-//    CryptoStream cd = new CryptoStream(fs, AES.CreateEncryptor(), CryptoStreamMode.Write);
+    //    RijndaelManaged AES = new RijndaelManaged();
+    //    AES.KeySize = 256;
+    //    AES.BlockSize = 128;
+    //    AES.Padding = PaddingMode.PKCS7;
 
-//    FileStream fsIn = new FileStream(inputFile, FileMode.Open);
+    //    var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
+    //    AES.Key = key.GetBytes(AES.KeySize / 8);
+    //    AES.IV = key.GetBytes(AES.BlockSize / 8);
 
-//    //criar buffer de 1Mb para alocar só este tamanho na mamória, e ão o ficheiro todo
-//    byte[] buffer = new byte[1048576];
+    //    //usamos o modo CBC porque é pedido no enunciado do projeto
+    //    //segundo certas fontes o CFB é mais seguro
+    //    AES.Mode = CipherMode.CBC;
 
-//    int readFile;
+    //    fs.Write(salt, 0, salt.Length);
 
-//    try{
-//        while ((readFile = fsIn.Read(buffer, 0, buffer.Length)) > 0) {
+    //    CryptoStream cd = new CryptoStream(fs, AES.CreateEncryptor(), CryptoStreamMode.Write);
 
-//            Application.DoEvents();
-//            cs.Write(buffer, 0, readFile);
-//        }
+    //    FileStream fsIn = new FileStream(inputFile, FileMode.Open);
 
-//        fsIn.Close();
-//    }
+    //    //criar buffer de 1Mb para alocar só este tamanho na mamória, e ão o ficheiro todo
+    //    byte[] buffer = new byte[1048576];
 
-//    catch (Exception ex){
-//        Console.WriteLine("Error: " + ex.Message);
-//    }
+    //    int readFile;
 
-//    finally{
-//        cs.Close();
-//        fs.Close();
-//    }
-//}
+    //    try
+    //    {
+    //        while ((readFile = fsIn.Read(buffer, 0, buffer.Length)) > 0)
+    //        {
 
-////decifra um ficheiro cifrado através do método FileEncrypt
-//private void FileDecrypt(string inputFile, string outputFile, string password){
+    //            Application.DoEvents();
+    //            cs.Write(buffer, 0, readFile);
+    //        }
 
-//    byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-//    byte[] salt = new byte[32];
+    //        fsIn.Close();
+    //    }
 
-//    FileStream fs = new FileStream(inputFile, FileMode.Open);
-//    fs.Read(salt, 0, salt.Length);
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine("Error: " + ex.Message);
+    //    }
 
-//    RijndaelManaged AES = new RijndaelManaged();
-//    AES.KeySize = 256;
-//    AES.BlockSize = 128;
-//    var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
-//    AES.Key = key.GetBytes(AES.KeySize / 8);
-//    AES.IV = key.GetBytes(AES.BlockSize / 8);
-//    AES.Padding = PaddingMode.PKCS7;
-//    AES.Mode = CipherMode.CBC;
+    //    finally
+    //    {
+    //        cs.Close();
+    //        fs.Close();
+    //    }
+    //}
 
-//    CryptoStream cs = new CryptoStream(fs, AES.CreateDecryptor(), CryptoStreamMode.Read);
+    ////decifra um ficheiro cifrado através do método FileEncrypt
+    //private void FileDecrypt(string inputFile, string outputFile, string password)
+    //{
 
-//    FileStream fsout = new FileStream(outputFile, FileMode.Create);
+    //    byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+    //    byte[] salt = new byte[32];
 
-//    int readFile;
-//    byte[] buffer = new byte[1048576];
+    //    FileStream fs = new FileStream(inputFile, FileMode.Open);
+    //    fs.Read(salt, 0, salt.Length);
 
-//    try{
-//        while ((readFile = cs.Read(buffer, 0, buffer.Length)) > 0 ){
+    //    RijndaelManaged AES = new RijndaelManaged();
+    //    AES.KeySize = 256;
+    //    AES.BlockSize = 128;
+    //    var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
+    //    AES.Key = key.GetBytes(AES.KeySize / 8);
+    //    AES.IV = key.GetBytes(AES.BlockSize / 8);
+    //    AES.Padding = PaddingMode.PKCS7;
+    //    AES.Mode = CipherMode.CBC;
 
-//            Application.DoEvents();
-//            fsout.Write(buffer, 0, readFile);
-//        }
-//    }
+    //    CryptoStream cs = new CryptoStream(fs, AES.CreateDecryptor(), CryptoStreamMode.Read);
 
-//    catch (CryptographicException ex_Crypto) {
-//        Console.WriteLine("CryptographicException error: " + ex_Crypto);
-//    }
+    //    FileStream fsout = new FileStream(outputFile, FileMode.Create);
 
-//    catch (Exception ex) {
-//        Console.WriteLine("Error: " + ex.Message);
-//    }
+    //    int readFile;
+    //    byte[] buffer = new byte[1048576];
 
-//    try{
-//        cs.Close();
-//    }
+    //    try
+    //    {
+    //        while ((readFile = cs.Read(buffer, 0, buffer.Length)) > 0)
+    //        {
 
-//    catch (Exception ex) {
-//        Console.WriteLine("Error when closing CryptoStream: " + ex.Message);
-//    }
+    //            Application.DoEvents();
+    //            fsout.Write(buffer, 0, readFile);
+    //        }
+    //    }
 
-//    finally{
-//        fsout.Close();
-//        fs.Close();
-//    }
-//}
+    //    catch (CryptographicException ex_Crypto)
+    //    {
+    //        Console.WriteLine("CryptographicException error: " + ex_Crypto);
+    //    }
+
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine("Error: " + ex.Message);
+    //    }
+
+    //    try
+    //    {
+    //        cs.Close();
+    //    }
+
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine("Error when closing CryptoStream: " + ex.Message);
+    //    }
+
+    //    finally
+    //    {
+    //        fsout.Close();
+    //        fs.Close();
+    //    }
+  //  }
+
+}
