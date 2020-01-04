@@ -6,11 +6,9 @@ namespace EstouAVer
 {
     class pbkdf2
     {
-
-        private const int saltByteSize = 32;
-        private const int hashByteSize = 32;
+        private const int saltByteSize = 64;
+        private const int hashByteSize = 64;
         private const int pbkdf2Iterations = 10000;
-
         // cria um hash pbkdf2 da password com salt
         public static passwordHashContainer CreateHash(string pass)
         {
@@ -49,7 +47,6 @@ namespace EstouAVer
         //compara dois hashes
         public static bool compareHashes(byte[] array1, byte[] array2)
         {
-
             if (array1.Length != array2.Length)
                 return false;
 
@@ -94,7 +91,6 @@ namespace EstouAVer
         //métodos para converter entre strings hexadecimais e byte arrays
         public static class byteConverter
         {
-
             //converte hex string para byte array
             public static byte[] getHexBytes(string hexString)
             {

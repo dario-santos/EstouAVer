@@ -1,7 +1,8 @@
 using System;
+using System.Numerics;
 using System.Security.Cryptography;
 
-namespace RSA{
+namespace EstouAVer{
     
     //classe com os métodos de cifra e decifra
     class EncAndDec{
@@ -23,37 +24,40 @@ namespace RSA{
     class KeyGen{
 
         public BigInteger result, d;
-        public int f;
+        public int f = 0;
 
         //gera um número aleatório
         public void randomGenerator(){
 
-            RNGCryptoServiceProvider rng = new byte[64];
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             byte[] randomNumber = new byte[64];
             rng.GetBytes(randomNumber);
-            result = BigInteger.ABbs(result);
+          
+            result = BigInteger.Abs(result);
         }
 
         //gera uma chave pública para o RSA
-        public BigInteger publicKeyGenerator(BigInteger e, BigInteger n){
+        //public static BigInteger publicKeyGenerator(BigInteger e, BigInteger n)
+        //{
 
-            while( e > 1){
+        //    while (e > 1)
+        //    {
 
-                BigInteger ef = BigInteger.Pow(e, f);
-                ef = 1 % n;
-            }
+        //        BigInteger ef = BigInteger.Pow(e, f);
+        //        ef = 1 % n;
+        //    }
 
-            return e;
-        }
+        //    return e;
+        //}
 
         //gera uma chave privada para o RSA
         public BigInteger privateKeyGenerator(BigInteger e){
 
-            d = (1/e) % f;
+          return  d = (1/e) % f;
         }
 
         //f(n) = (p-1) * (q-1)
-        public void fn(int p, int q){
+        public int fn(int p, int q){
 
             return ((p-1)*(q-1));
         }
@@ -65,10 +69,11 @@ namespace RSA{
 
                 result++;
             }
+            return result;
         }
 
         //testa se o número escolhido é primo ou não
-        public bool MillerRabinTest(int n){
+        public bool MillerRabinTest(int k){
 
             if (result == 2 || result == 3)
                 return true;
@@ -87,15 +92,16 @@ namespace RSA{
 
             for(var i = 0; i < k; i++){
 
-                RNGCryptoServiceProvider rng = RNGCryptoServiceProvider();
+                RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
                 byte[] _a = new byte[result.ToByteArray().LongLength];
                 BigInteger a;
 
-                while(a < 2 || a >= result - 2){
-
+                do
+                {
                     rng.GetBytes(_a);
                     a = new BigInteger(_a);
                 }
+                while (a < 2 || a >= result - 2);
 
                 BigInteger n = BigInteger.ModPow(a, d, result);
 

@@ -6,6 +6,6 @@
         public static readonly string servicePath = @"C:\Users\dario\Desktop\ImWorking.txt";
 
         public static readonly string databaseFrias = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite";
-
+        public static readonly string databaseFriasENC = @"C:\\User\\Frias\\Desktop\\EstouAVerBD.enc";
     }
 }

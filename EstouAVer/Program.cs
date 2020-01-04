@@ -5,6 +5,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.ServiceProcess;
 using System.Text;
+using System.Numerics;
 
 namespace EstouAVer
 {
@@ -12,34 +13,34 @@ namespace EstouAVer
     {
         private static void Main(string[] args)
         {
-            DecryptFileBD();
-            // EncryptFileBD();
 
 
-            //AES.AES_Encrypt(Directories.databaseFrias, "123456");
 
-            // AES.AES_Decrypt("C:\\Users\\Frias\\Desktop\\BD\\EstouAVerBD.sqlite", "123456"); 
-            //aes_cbc_128.FileEncrypt(Directories.databaseFrias, "123456");
+            StartService();
 
-            //aes_cbc_128.FileDecrypt(Directories.databaseFrias, Directories.databaseFrias + "bd.sqlite", "123456");
-
-           var x = pbkdf2.CreateHash("1234");
-      
-
-
-            Console.WriteLine( BitConverter.ToString( x.hashedPassword));
-
-          //  StartService();
-
-         //   CreateDataBase();
-
-          //  FirstMenu();
+            if (!File.Exists("C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes"))
+            {
+                CreateDataBase();
+            }
+            else
+            {
+                DecryptFileBD();
+            }
+            FirstMenu();
         }
 
         public static void EncryptFileBD()
         {
             string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite";
-            string password = "abcd1234";
+
+
+            var x = pbkdf2.CreateHash("abcd1234");
+
+            //BitConverter.ToString(x.hashedPassword).Replace("-", "");
+
+            string password = BitConverter.ToString(x.hashedPassword).Replace("-", "");
+
+            //string password = "abcd1234";
 
             byte[] bytesToBeEncrypted = File.ReadAllBytes(file);
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
@@ -49,7 +50,10 @@ namespace EstouAVer
 
             byte[] bytesEncrypted = AES.AES_Encrypt(bytesToBeEncrypted, passwordBytes);
 
+            // string fileEncrypted = Directories.databaseFriasENC;
+
             string fileEncrypted = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes";
+
 
             File.WriteAllBytes(fileEncrypted, bytesEncrypted);
 
@@ -59,7 +63,7 @@ namespace EstouAVer
             {
                 f.Delete();
             }
-            catch(System.IO.IOException e)
+            catch (System.IO.IOException e)
             {
                 Console.WriteLine(e.Message);
             }
@@ -69,7 +73,12 @@ namespace EstouAVer
         {
 
             string fileEncrypted = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes";
-            string password = "abcd1234";
+
+            var x = pbkdf2.CreateHash("abcd1234");
+
+            string password = BitConverter.ToString(x.hashedPassword).Replace("-", "");
+
+            // string password = "abcd1234";
 
             byte[] bytesToBeDecrypted = File.ReadAllBytes(fileEncrypted);
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
@@ -77,12 +86,12 @@ namespace EstouAVer
 
             byte[] bytesDecrypted = AES.AES_Decrypt(bytesToBeDecrypted, passwordBytes);
 
-            string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite"; ;
+            string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite";
             File.WriteAllBytes(file, bytesDecrypted);
 
 
         }
-  
+
 
         private static void StartService()
         {
@@ -90,10 +99,17 @@ namespace EstouAVer
             Console.Clear();
         }
 
-        private static void CreateDataBase()
+        private static bool CreateDataBase()
         {
             if (!File.Exists(Directories.databaseFrias))
+            {
                 AjudanteParaBD.OnCreate();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private static void FirstMenu()
@@ -128,6 +144,7 @@ namespace EstouAVer
             {
                 case 0:
                     Console.WriteLine("Programa terminado.");
+                    EncryptFileBD();
                     break;
                 case 1:
                     LoginMenu();
@@ -242,7 +259,7 @@ namespace EstouAVer
                 Console.WriteLine("4 - Ajuda");
                 Console.WriteLine("5 - Logout");
                 Console.WriteLine("");
-                Console.WriteLine("0 - Sair");
+                //  Console.WriteLine("0 - Sair");
                 Console.Write("\nOpcao escolhida: ");
                 opcao = Console.ReadLine();
 
@@ -260,8 +277,9 @@ namespace EstouAVer
             {
                 case 0:
                     Console.Clear();
-                    Console.WriteLine("Adeus!");
                     EncryptFileBD();
+                    Console.WriteLine("Adeus!");
+
                     break;
                 case 1:
                     ReceberDiretoria();
@@ -281,7 +299,8 @@ namespace EstouAVer
                     MainMenu(username);
                     break;
                 case 5:
-                    Console.WriteLine("5 - Logout");
+                    //Console.WriteLine("5 - Logout");
+                    FirstMenu();
                     break;
             }
         }
@@ -404,8 +423,6 @@ namespace EstouAVer
             do
             {
 
-
-
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("|               Tipo de Directoria                         |");
                 Console.WriteLine("+----------------------------------------------------------+");
@@ -428,7 +445,6 @@ namespace EstouAVer
 
             } while (flag != true);
 
-
             //opções depois do user escolher no meu
             result_b = int.Parse(opcao);
             switch (result_b)
@@ -436,6 +452,7 @@ namespace EstouAVer
                 case 0:
                     Console.Clear();
                     Console.WriteLine("Adeus!");
+                    EncryptFileBD();
                     break;
                 case 1:
                     VerificarDiretoria();
@@ -446,7 +463,6 @@ namespace EstouAVer
 
                     MainMenu(username);
                     break;
-
             }
 
         }
@@ -460,7 +476,7 @@ namespace EstouAVer
             Console.WriteLine("+----------------------------------------------------------+");
             Console.WriteLine("|      Gerar Hmac dos ficheriros da directoria             |");
             Console.WriteLine("+----------------------------------------------------------+");
-   
+
             List<Dir> directories = AjudanteParaBD.SelectDirsWithUsername(DataBaseFunctions.userLog);
 
             if (directories == null)
@@ -481,8 +497,8 @@ namespace EstouAVer
                 Console.WriteLine("Escolha uma direcotria!");
                 option = Console.ReadLine();
 
-                rdopiton = int.Parse(option);  
-                
+                rdopiton = int.Parse(option);
+
             } while (rdopiton > i);
 
             Console.WriteLine("Introduza a password com que pretende gerar os HMAC");
@@ -490,7 +506,7 @@ namespace EstouAVer
             passwd = Console.ReadLine();
 
             var hash = HMac.hmac(directories[rdopiton].path, passwd);
-   
+
             //CASO QUEIRAM VER O RESULTADO
             foreach (var x in hash)
             {

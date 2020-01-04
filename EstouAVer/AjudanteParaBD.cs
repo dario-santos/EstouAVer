@@ -69,7 +69,6 @@ namespace EstouAVer
             + ");";
 
         public AjudanteParaBD() { }
-
         public static void OnCreate()
         {
             SQLiteConnection.CreateFile(Directories.databaseFrias);
@@ -118,6 +117,7 @@ namespace EstouAVer
                     }
                 }
             }
+          
         }
 
         public static int InsertUser(User user)
@@ -142,8 +142,6 @@ namespace EstouAVer
                 }
             }
         }
-
-
 
         public static int InsertDirectory(Dir dir)
         {
