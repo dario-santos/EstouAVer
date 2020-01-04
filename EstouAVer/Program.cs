@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.ServiceProcess;
+using System.Text;
 
 namespace EstouAVer
 {
@@ -10,12 +12,77 @@ namespace EstouAVer
     {
         private static void Main(string[] args)
         {
-            StartService();
+            DecryptFileBD();
+            // EncryptFileBD();
 
-            CreateDataBase();
 
-            FirstMenu();
+            //AES.AES_Encrypt(Directories.databaseFrias, "123456");
+
+            // AES.AES_Decrypt("C:\\Users\\Frias\\Desktop\\BD\\EstouAVerBD.sqlite", "123456"); 
+            //aes_cbc_128.FileEncrypt(Directories.databaseFrias, "123456");
+
+            //aes_cbc_128.FileDecrypt(Directories.databaseFrias, Directories.databaseFrias + "bd.sqlite", "123456");
+
+           var x = pbkdf2.CreateHash("1234");
+      
+
+
+            Console.WriteLine( BitConverter.ToString( x.hashedPassword));
+
+          //  StartService();
+
+         //   CreateDataBase();
+
+          //  FirstMenu();
         }
+
+        public static void EncryptFileBD()
+        {
+            string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite";
+            string password = "abcd1234";
+
+            byte[] bytesToBeEncrypted = File.ReadAllBytes(file);
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+
+            // Hash the password with SHA256
+            passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
+
+            byte[] bytesEncrypted = AES.AES_Encrypt(bytesToBeEncrypted, passwordBytes);
+
+            string fileEncrypted = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes";
+
+            File.WriteAllBytes(fileEncrypted, bytesEncrypted);
+
+            FileInfo f = new FileInfo(@"C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite");
+
+            try
+            {
+                f.Delete();
+            }
+            catch(System.IO.IOException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+        }
+        public static void DecryptFileBD()
+        {
+
+            string fileEncrypted = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes";
+            string password = "abcd1234";
+
+            byte[] bytesToBeDecrypted = File.ReadAllBytes(fileEncrypted);
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+            passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
+
+            byte[] bytesDecrypted = AES.AES_Decrypt(bytesToBeDecrypted, passwordBytes);
+
+            string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite"; ;
+            File.WriteAllBytes(file, bytesDecrypted);
+
+
+        }
+  
 
         private static void StartService()
         {
@@ -194,6 +261,7 @@ namespace EstouAVer
                 case 0:
                     Console.Clear();
                     Console.WriteLine("Adeus!");
+                    EncryptFileBD();
                     break;
                 case 1:
                     ReceberDiretoria();
