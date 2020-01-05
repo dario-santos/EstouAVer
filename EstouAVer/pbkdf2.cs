@@ -6,9 +6,10 @@ namespace EstouAVer
 {
     class pbkdf2
     {
-        private const int saltByteSize = 64;
-        private const int hashByteSize = 64;
+        private const int saltByteSize     = 64;
+        private const int hashByteSize     = 64;
         private const int pbkdf2Iterations = 10000;
+
         // cria um hash pbkdf2 da password com salt
         public static passwordHashContainer CreateHash(string pass)
         {

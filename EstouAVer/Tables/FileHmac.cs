@@ -1,26 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EstouAVer.Tables
+﻿namespace EstouAVer.Tables
 {
     public class FileHmac
     {
 
         public string path { get; set; }
         public string hmac { get; set; }
-        public string UserName { get; set; }
+        public string dir { get; set; }
 
-        public FileHmac()
-        {
-
-        }
-
-        public FileHmac(string path, string hmac, string UserNAme)
+        public FileHmac(string path, string hmac, string dir)
         {
             this.path = path;
             this.hmac = hmac;
-            this.UserName = UserNAme;
+            this.dir = dir;
         }
     }
 }

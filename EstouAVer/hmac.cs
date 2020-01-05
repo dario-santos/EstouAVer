@@ -9,20 +9,18 @@ namespace EstouAVer
     {
         public static IDictionary<string, string> hmac(string directory, string key)
         {
-
             if (!Directory.Exists(directory))
             {
-                Console.WriteLine("A direcotria não foi encontrada");
+                Console.WriteLine("Erro! A diretoria não foi encontrada.");
                 return null;
             }
 
             var dir = new DirectoryInfo(directory);
             var files = dir.GetFiles();
 
-            System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-            byte[] keyByte = encoding.GetBytes(key);
+            byte[] keyByte = new System.Text.ASCIIEncoding().GetBytes(key);
 
-            HMACSHA256 hmacsha256 = new HMACSHA256(keyByte);
+            var hmacsha256 = new HMACSHA256(keyByte);
 
             IDictionary<string, string> hashValues = new Dictionary<string, string>();
 

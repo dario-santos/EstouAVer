@@ -10,6 +10,8 @@ namespace EstouAVer
     partial class VerificationService : ServiceBase
     {
         private readonly Timer timer;
+        private string mode;
+        private string key;
         private string username;
         private string password;
         private Dir dir;
@@ -25,11 +27,16 @@ namespace EstouAVer
         private void VerifyDirectory(object sender, ElapsedEventArgs e)
         {
             // O ficheiro ------------- foi alterado em ------------
-            string[] lines = VerificarIntegridade();
+            string[] lines = null;
+            if (mode.Equals("sha256"))
+                lines = VerificarIntegridadeSHA256();
+            else if (mode.Equals("hmac"))
+                lines = VerificarIntegridadeHMAC();
+
             File.AppendAllLines(Directories.servicePath, lines);
         }
 
-        public string[] VerificarIntegridade()
+        public string[] VerificarIntegridadeSHA256()
         {
             var currentfiles = SHA256Code.GenerateFromDir(dir.path);
             var databaseFiles = AjudanteParaBD.SelectFilesWithDir(dir.path);
@@ -66,6 +73,45 @@ namespace EstouAVer
 
             return lines.ToArray();
         }
+        
+        public string[] VerificarIntegridadeHMAC()
+        {
+            var currentfiles = HMac.hmac(dir.path, key);
+            var databaseFiles = AjudanteParaBD.SelectFileHMACWithDir(dir.path);
+
+            var lines = new List<string>();
+
+            foreach (var f in databaseFiles)
+            {
+                //Se foi eliminado
+                if (!currentfiles.Keys.Contains(f.path))
+                {
+                    lines.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + " - Removido o ficheiro \'" + f.path + "\' da base de dados.");
+                    AjudanteParaBD.DeleteFileHMAC(f);
+
+                    continue;
+                }
+
+                // Se existir vamos ver se foi alterado
+                if (!currentfiles[f.path].Equals(f.hmac))
+                {
+                    lines.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + " - O ficheiro \'" + f.path + "\' sofreu alteracoes.");
+                    AjudanteParaBD.UpdateFileHMAC(new FileHmac(f.path, currentfiles[f.path], dir.path));
+                }
+
+                currentfiles.Remove(f.path);
+            }
+
+            // Se ainda houver ficheiros, são os que foram adicionados
+            foreach (string file in currentfiles.Keys)
+            {
+                lines.Add(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + " - Adicionado o ficheiro \'" + file + "\' a base de dados.");
+                AjudanteParaBD.InsertFileHMAC(new FileHmac(file, currentfiles[file], dir.path));
+            }
+
+            return lines.ToArray();
+        }
+
 
         private bool Login(string username, string password)
         {
@@ -77,18 +123,38 @@ namespace EstouAVer
 
         protected override void OnStart(string[] args)
         {
+            mode = string.Empty;
+            key = string.Empty;
             string directory = string.Empty;
             username = string.Empty;
             password = string.Empty;
 
-            if (args.Length != 3)
+            if (args.Length != 4 && args.Length != 5)
             {
                 OnStop();
                 return;
             }
-            username  = args[0];
-            password  = args[1];
-            directory = args[2];
+
+            mode = args[0].ToLower();
+
+            if (mode.Equals("sha256"))
+            {
+                username  = args[1];
+                password  = args[2];
+                directory = args[3];
+            }
+            else if(mode.Equals("hmac"))
+            {
+                key       = args[1];
+                username  = args[2];
+                password  = args[3];
+                directory = args[4];
+            }
+            else
+            {
+                OnStop();
+                return;
+            }
 
             if (!Login(username, password))
             {

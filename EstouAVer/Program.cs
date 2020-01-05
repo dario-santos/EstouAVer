@@ -1,12 +1,10 @@
 ﻿using EstouAVer.Tables;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.ServiceProcess;
 using System.Text;
-using System.Numerics;
 
 namespace EstouAVer
 {
@@ -14,10 +12,9 @@ namespace EstouAVer
     {
         private static void Main(string[] args)
         {
-
             StartService();
 
-            if (!File.Exists("C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes"))
+            if (!File.Exists(Directories.databaseAES))
             {
                 CreateDataBase();
             }
@@ -25,62 +22,53 @@ namespace EstouAVer
             {
                 DecryptFileBD();
             }
+            
             FirstMenu();
         }
 
         public static void EncryptFileBD()
         {
-            string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite";
-
             Console.WriteLine("Introduza uma password para encriptar a base de dados");
 
+            string password = Console.ReadLine();
 
-            string password = Console.ReadLine(); ;
-
-            byte[] bytesToBeEncrypted = File.ReadAllBytes(file);
+            byte[] bytesToBeEncrypted = File.ReadAllBytes(Directories.database);
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
 
-            // Hash the password with SHA256
+            // Hashes the password with SHA256
             passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
 
             byte[] bytesEncrypted = AES.AES_Encrypt(bytesToBeEncrypted, passwordBytes);
 
-            string fileEncrypted = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes";
+            File.WriteAllBytes(Directories.databaseAES, bytesEncrypted);
 
-            File.WriteAllBytes(fileEncrypted, bytesEncrypted);
-
-            FileInfo f = new FileInfo(@"C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite");
+            FileInfo f = new FileInfo(Directories.database);
 
             try
             {
                 f.Delete();
             }
-            catch (System.IO.IOException e)
+            catch(IOException e)
             {
                 Console.WriteLine(e.Message);
             }
 
         }
+
         public static void DecryptFileBD()
         {
+            Console.WriteLine("Introduza a password para desencriptar a base de dados.");
 
-            string fileEncrypted = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes";
+            string password = Console.ReadLine();
 
-            Console.WriteLine("Introduza a sua password para desencriptar a base de dados");
-
-            string password = Console.ReadLine(); ;
-
-            byte[] bytesToBeDecrypted = File.ReadAllBytes(fileEncrypted);
+            byte[] bytesToBeDecrypted = File.ReadAllBytes(Directories.databaseAES);
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
             passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
 
             byte[] bytesDecrypted = AES.AES_Decrypt(bytesToBeDecrypted, passwordBytes);
 
-            string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite";
-            File.WriteAllBytes(file, bytesDecrypted);
-
+            File.WriteAllBytes(Directories.database, bytesDecrypted);
         }
-
 
         private static void StartService()
         {
@@ -155,7 +143,6 @@ namespace EstouAVer
 
             do
             {
-                //Console.Clear();
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("|                        Login                             |");
                 Console.WriteLine("+----------------------------------------------------------+");
@@ -171,7 +158,7 @@ namespace EstouAVer
                 if (value == false)
                 {
                     Console.WriteLine("Deseja registar um novo utilizador? Sim(s) Não(n)");
-                    SN = Console.ReadLine();
+                    SN = Console.ReadLine().ToLower();
 
                     if (SN.Equals("s"))
                     {
@@ -277,11 +264,10 @@ namespace EstouAVer
                     break;
                 case 2:
                     EscolherVerificação(username);
-                    //VerificarDiretoria();
                     MainMenu(username);
                     break;
                 case 3:
-                    tipoVerificação(username);
+                    TipoVerificacao(username);
                     MainMenu(username);
                     break;
                 case 4:
@@ -296,7 +282,7 @@ namespace EstouAVer
             }
         }
 
-        public static void tipoVerificação(string username)
+        public static void TipoVerificacao(string username)
         {
             bool b;
             string opcao;
@@ -307,16 +293,14 @@ namespace EstouAVer
                 b = true;
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("|                         MENU                             |");
-                Console.WriteLine("+----------------------------------------------------------+");
-                Console.WriteLine("");
-                Console.WriteLine("1 - Verificar SHA256");
-                Console.WriteLine("2 - Verificar HMAC");
-                Console.WriteLine("");
+                Console.WriteLine("+----------------------------------------------------------+\n");
+                Console.WriteLine("1 - Verificar com SHA256");
+                Console.WriteLine("2 - Verificar com HMAC\n");
                 Console.WriteLine("0 - Sair");
                 Console.Write("\nOpcao escolhida: ");
                 opcao = Console.ReadLine();
 
-                if (opcao != "1" && opcao != "2" && opcao != "3" && opcao != "4" && opcao != "5" && opcao != "0")
+                if (opcao != "1" && opcao != "2" && opcao != "0")
                 {
                     Console.Clear();
                     Console.WriteLine("\nOpcao invalida. Introduza uma das opcoes enunciadas!");
@@ -328,7 +312,6 @@ namespace EstouAVer
             switch (result_b)
             {
                 case 0:
-
                     break;
                 case 1:
                     VerificarDiretoria();
@@ -338,7 +321,6 @@ namespace EstouAVer
                     Verificarhmac();
                     MainMenu(username);
                     break;
-
             }
         }
 
@@ -417,7 +399,6 @@ namespace EstouAVer
             } while (true);
         }
 
-
         public static void EscolherVerificação(string username)
         {
 
@@ -462,14 +443,13 @@ namespace EstouAVer
                     MainMenu(username);
                     break;
                 case 2:
-                    filesHmac(username);
+                    FilesHmac();
                     MainMenu(username);
                     break;
             }
-
         }
 
-        public static void filesHmac(string username)
+        public static void FilesHmac()
         {
             string passwd;
             string option;
@@ -508,14 +488,13 @@ namespace EstouAVer
 
             passwd = Console.ReadLine();
 
-            var hash = HMac.hmac(directories[rdopiton].path, passwd);
+            var hmacs = HMac.hmac(directories[rdopiton].path, passwd);
 
-            foreach (var x in hash)
+            foreach (var hmac in hmacs)
             {
-                Console.WriteLine(x);
-                AjudanteParaBD.InsertFileHMAC(new FileHmac(x.Key, x.Value, username));
+                Console.WriteLine(hmac);
+                AjudanteParaBD.InsertFileHMAC(new FileHmac(hmac.Key, hmac.Value, directories[rdopiton].path));
             }
-
         }
 
         private static void VerificarDiretoria()
@@ -597,26 +576,7 @@ namespace EstouAVer
             Console.WriteLine("Introduza a sua palavra pass com que gerou os HMAC");
             string pass = Console.ReadLine();
 
-            //EXEMPLO PARA CHAMAR O FUNÇÃO PARA UMA PASTA 
-            var currenthash = HMac.hmac(directories[index].path, pass);
-            var hmacBD = AjudanteParaBD.SelectFileHMAC(DataBaseFunctions.userLog);
-
-            foreach (FileHmac x in hmacBD)
-            {
-
-                if (!currenthash[x.path].Equals(x.hmac))
-                {
-                    Console.WriteLine("O ficheiro \'" + x.path + "\' sofreu alteracoes.");
-               
-                }
-                else
-                {
-                    Console.WriteLine("O ficheiro \'" + x.path + "\' não sofreu alteracoes.");
-
-                }
-
-            }
-
+            DataBaseFunctions.VerificarIntegridadeHMAC(directories[index], pass);
         }
 
         private static void HelpMenu()

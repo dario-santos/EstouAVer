@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace EstouAVer
 {
     class AES
     {
-
         public static byte[] AES_Encrypt(byte[] bytesToBeEncrypted, byte[] passwordBytes)
         {
             byte[] encryptedBytes = null;
@@ -17,9 +13,9 @@ namespace EstouAVer
             // The salt bytes must be at least 8 bytes.
             byte[] saltBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
 
-            using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
-                using (RijndaelManaged AES = new RijndaelManaged())
+                using (var AES = new RijndaelManaged())
                 {
                     AES.KeySize = 256;
                     AES.BlockSize = 128;
@@ -38,7 +34,6 @@ namespace EstouAVer
                     encryptedBytes = ms.ToArray();
                 }
             }
-
             return encryptedBytes;
         }
 
@@ -50,9 +45,9 @@ namespace EstouAVer
             // The salt bytes must be at least 8 bytes.
             byte[] saltBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
 
-            using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
-                using (RijndaelManaged AES = new RijndaelManaged())
+                using (var AES = new RijndaelManaged())
                 {
                     AES.KeySize = 256;
                     AES.BlockSize = 128;
@@ -72,9 +67,7 @@ namespace EstouAVer
                     decryptedBytes = ms.ToArray();
                 }
             }
-
             return decryptedBytes;
         }
-
     }
 }

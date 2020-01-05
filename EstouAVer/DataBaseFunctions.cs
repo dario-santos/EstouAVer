@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using EstouAVer.Tables;
 
 namespace EstouAVer
@@ -10,8 +9,6 @@ namespace EstouAVer
 
         public static bool Register(User user)
         {
-            //Console.Clear();
-
             if (AjudanteParaBD.SelectUserWithUsername(user.username) != null)
             {
                 Console.WriteLine("\nErro! O username \"" + user.username + "\" não está disponivel!");
@@ -63,7 +60,6 @@ namespace EstouAVer
         public static void VerificarIntegridade(Dir dir)
         {
             var currentfiles = SHA256Code.GenerateFromDir(dir.path);
-
             var databaseFiles = AjudanteParaBD.SelectFilesWithDir(dir.path);
 
 
@@ -97,6 +93,45 @@ namespace EstouAVer
             {
                 Console.WriteLine("Adicionado o ficheiro \'" + file + "\' a base de dados.");
                 AjudanteParaBD.InsertFile(new TFile(file, currentfiles[file], dir.path));
+            }
+        }
+
+        public static void VerificarIntegridadeHMAC(Dir dir, string key)
+        {
+            var currentfiles = HMac.hmac(dir.path, key);
+            var databaseFiles = AjudanteParaBD.SelectFileHMACWithDir(dir.path);
+
+
+            foreach (var f in databaseFiles)
+            {
+                //Se foi eliminado
+                if (!currentfiles.Keys.Contains(f.path))
+                {
+                    Console.WriteLine("Removido o ficheiro \'" + f.path + "\' da base de dados.");
+                    AjudanteParaBD.DeleteFileHMAC(f);
+
+                    continue;
+                }
+
+                // Se existir vamos ver se foi alterado
+                if (!currentfiles[f.path].Equals(f.hmac))
+                {
+                    Console.WriteLine("O ficheiro \'" + f.path + "\' sofreu alteracoes.");
+                    AjudanteParaBD.UpdateFileHMAC(new FileHmac(f.path, currentfiles[f.path], dir.path));
+                }
+                else
+                {
+                    Console.WriteLine("O ficheiro \'" + f.path + "\' sofreu alteracoes.");
+                }
+
+                currentfiles.Remove(f.path);
+            }
+
+            // Se ainda houver ficheiros, são os que foram adicionados
+            foreach (string file in currentfiles.Keys)
+            {
+                Console.WriteLine("Adicionado o ficheiro \'" + file + "\' a base de dados.");
+                AjudanteParaBD.InsertFileHMAC(new FileHmac(file, currentfiles[file], dir.path));
             }
         }
     }

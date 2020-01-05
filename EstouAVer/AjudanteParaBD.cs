@@ -8,7 +8,7 @@ namespace EstouAVer
     public class AjudanteParaBD
     {
         //seleciona a base de dados
-        private static string connectionString { get; } = "Data Source=" + Directories.databaseFrias + ";Version=3;";
+        private static string connectionString { get; } = "Data Source=" + Directories.database + ";Version=3;";
 
         public static readonly string BD_NAME = "EstouAVer.sqlite";
 
@@ -33,45 +33,43 @@ namespace EstouAVer
         public static readonly string FILE_DIR = "dir";
 
         //Table FILESHMAC - Colums
-        public static readonly string FILE_PATHHMAC = "path";
-        public static readonly string FILE_HMAC = "hmac";
-        public static readonly string FILE_DIRH = "dir";
-
-
+        public static readonly string FILEHMAC_PATH = "path";
+        public static readonly string FILEHMAC_HMAC = "hmac";
+        public static readonly string FILEHMAC_DIR = "dir";
 
         // Table Create Statements
         // USER table create statement
         private static readonly string CREATE_TABLE_USER = "CREATE TABLE " + TABLE_USER + "("
             + USER_USERNAME + " TEXT NOT NULL,"
-            + USER_SALT + " TEXT,"
-            + USER_REP + " TEXT,"
-            + "PRIMARY KEY(" + USER_USERNAME + ")"
+            + USER_SALT     + " TEXT,"
+            + USER_REP      + " TEXT,"
+            + "PRIMARY KEY("+ USER_USERNAME + ")"
             + ");";
 
         // DIRECTORY table create statement
         private static readonly string CREATE_TABLE_DIRECTORY = "CREATE TABLE " + TABLE_DIRECTORY + "("
-            + DIRECTORY_PATH + " TEXT PRIMARY KEY, "
+            + DIRECTORY_PATH     + " TEXT PRIMARY KEY, "
             + DIRECTORY_USERNAME + " TEXT "
             + ");";
 
         // FILESSHA256 table create statement
         private static readonly string CREATE_TABLE_FILE = "CREATE TABLE " + TABLE_FILE + "("
-            + FILE_PATH + " TEXT PRIMARY KEY, "
+            + FILE_PATH   + " TEXT PRIMARY KEY, "
             + FILE_SHA256 + " TEXT, "
-            + FILE_DIR + " TEXT "
+            + FILE_DIR    + " TEXT "
             + ");";
 
         //FileHmac table creat statement
         private static readonly string CREATE_TABLE_FILEHMAC = "CREATE TABLE " + TABLE_FILEHMAC + "("
-            + FILE_PATHHMAC + " TEXT PRIMARY KEY, "
-            + FILE_HMAC + " TEXT, "
-            + USER_USERNAME + " TEXT "
+            + FILEHMAC_PATH + " TEXT PRIMARY KEY, "
+            + FILEHMAC_HMAC + " TEXT, "
+            + FILEHMAC_DIR  + " TEXT"
             + ");";
 
         public AjudanteParaBD() { }
         public static void OnCreate()
         {
-            SQLiteConnection.CreateFile(Directories.databaseFrias);
+            SQLiteConnection.CreateFile(Directories.database);
 
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
@@ -244,13 +242,11 @@ namespace EstouAVer
 
         public static void InsertFileHMAC(FileHmac file)
         {
-
             string value = string.Empty;
-
 
             using var connection = new SQLiteConnection(connectionString);
 
-            string sqlS = "select path, hmac, username from FileHMAC where path = @path";
+            string sqlS = "select " + FILEHMAC_PATH + " FROM " + TABLE_FILEHMAC + " WHERE " + FILEHMAC_PATH + " = @path";
 
             connection.Open();
             using (var selectSQL = new SQLiteCommand(sqlS, connection))
@@ -261,10 +257,9 @@ namespace EstouAVer
                 {
                     try
                     {
-
                         while (rd.Read())
                         {
-                            value = (string)rd["path"];
+                            value = (string)rd[FILEHMAC_PATH];
                         }
 
                     }
@@ -279,17 +274,16 @@ namespace EstouAVer
 
             if (value != file.path)
             {
-                string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILE_PATHHMAC + " , " + FILE_HMAC + " ,  " + USER_USERNAME + " ) VALUES (@Path, @hmac, @User)";
+                string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILEHMAC_PATH + " , " + FILEHMAC_HMAC + " ,  " + FILEHMAC_DIR + " ) VALUES (@Path, @Hmac, @Dir)";
 
                 connection.Open();
                 using (var insertSQL = new SQLiteCommand(sql, connection))
                 {
                     insertSQL.Parameters.AddWithValue("@Path", file.path);
-                    insertSQL.Parameters.AddWithValue("@hmac", file.hmac);
-                    insertSQL.Parameters.AddWithValue("@User", file.UserName);
+                    insertSQL.Parameters.AddWithValue("@Hmac", file.hmac);
+                    insertSQL.Parameters.AddWithValue("@Dir", file.dir);
 
                     insertSQL.ExecuteNonQuery();
-
                 }
             }
 
@@ -306,6 +300,29 @@ namespace EstouAVer
             {
                 updateSQL.Parameters.AddWithValue("@Path", file.path);
                 updateSQL.Parameters.AddWithValue("@Sha256", file.sha256);
+
+                try
+                {
+                    return updateSQL.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.ToString());
+                }
+            }
+        }
+
+        public static int UpdateFileHMAC(FileHmac file)
+        {
+            using var connection = new SQLiteConnection(connectionString);
+
+            string sql = "UPDATE " + TABLE_FILEHMAC + " SET " + FILEHMAC_HMAC + " = @Hmac  WHERE " + FILEHMAC_PATH + " = @Path";
+
+            connection.Open();
+            using (var updateSQL = new SQLiteCommand(sql, connection))
+            {
+                updateSQL.Parameters.AddWithValue("@Path", file.path);
+                updateSQL.Parameters.AddWithValue("@Hmac", file.hmac);
 
                 try
                 {
@@ -371,32 +388,25 @@ namespace EstouAVer
             }
         }
 
-        public static List<FileHmac> SelectFileHMAC(string user)
+        public static List<FileHmac> SelectFileHMACWithDir(string dir)
         {
-
             List<FileHmac> list = new List<FileHmac>();
 
-
             using var connection = new SQLiteConnection(connectionString);
-            string sql = "SELECT path, hmac FROM " + TABLE_FILEHMAC + " WHERE username = @user";
+            string sql = "SELECT * FROM " + TABLE_FILEHMAC + " WHERE " +  FILEHMAC_DIR + " = @path";
 
             connection.Open();
             using (var selectSQL = new SQLiteCommand(sql, connection))
             {
-                selectSQL.Parameters.AddWithValue("@user", user);
+                selectSQL.Parameters.AddWithValue("@path", dir);
 
                 using (var rd = selectSQL.ExecuteReader())
                 {
                     while (rd.Read())
                     {
-                        FileHmac h = new FileHmac();
-
                         try
                         {
-                            h.hmac = (string)rd["hmac"];
-                            h.path = (string)rd["path"];
-                            list.Add(h);
-
+                            list.Add(new FileHmac((string)rd[FILEHMAC_PATH], (string)rd[FILEHMAC_HMAC], (string)rd[FILEHMAC_DIR]));
                         }
                         catch (Exception ex)
                         {
@@ -413,6 +423,28 @@ namespace EstouAVer
             using var connection = new SQLiteConnection(connectionString);
 
             string sql = "DELETE FROM " + TABLE_FILE + " WHERE " + FILE_PATH + " = @Path";
+
+            connection.Open();
+            using (var updateSQL = new SQLiteCommand(sql, connection))
+            {
+                updateSQL.Parameters.AddWithValue("@Path", file.path);
+
+                try
+                {
+                    return updateSQL.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.ToString());
+                }
+            }
+        }
+
+        public static int DeleteFileHMAC(FileHmac file)
+        {
+            using var connection = new SQLiteConnection(connectionString);
+
+            string sql = "DELETE FROM " + TABLE_FILEHMAC + " WHERE " + FILEHMAC_PATH + " = @Path";
 
             connection.Open();
             using (var updateSQL = new SQLiteCommand(sql, connection))
