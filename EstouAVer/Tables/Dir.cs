@@ -1,4 +1,6 @@
-﻿namespace EstouAVer.Tables
+﻿
+
+namespace EstouAVer.Tables
 {
     public class Dir
     {        

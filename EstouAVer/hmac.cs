@@ -12,7 +12,7 @@ namespace EstouAVer
 
             if (!Directory.Exists(directory))
             {
-                Console.WriteLine("The directory specified could not be found.");
+                Console.WriteLine("A direcotria não foi encontrada");
                 return null;
             }
 
@@ -36,8 +36,6 @@ namespace EstouAVer
                         var hashHAMC = hmacsha256.ComputeHash(fileStream);
                         var hash = mySHA256.ComputeHash(fileStream);
 
-                     //   hashValues.Add(fInfo.FullName, BitConverter.ToString(hash).Replace("-", ""));
-
                         hashValues.Add(fInfo.FullName, BitConverter.ToString(hashHAMC).Replace("-", ""));
                         fileStream.Close();
                     }
@@ -56,7 +54,6 @@ namespace EstouAVer
 
 
             //EXEMPLO PARA CHAMAR O FUNÇÃO PARA UMA PASTA 
-
             //var hash = HMac.hmac(@"C:\Users\Frias\Desktop\Trabalho de Grupo SI", "1234");
 
             //CASO QUEIRAM VER O RESULTADO

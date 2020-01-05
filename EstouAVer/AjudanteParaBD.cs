@@ -117,7 +117,7 @@ namespace EstouAVer
                     }
                 }
             }
-          
+
         }
 
         public static int InsertUser(User user)
@@ -160,6 +160,7 @@ namespace EstouAVer
                 }
                 catch (Exception e)
                 {
+
                     throw new Exception(e.ToString());
                 }
             }
@@ -241,27 +242,57 @@ namespace EstouAVer
             }
         }
 
-        public static int InsertFileHMAC(FileHmac file)
+        public static void InsertFileHMAC(FileHmac file)
         {
+
+            string value = string.Empty;
+
+
             using var connection = new SQLiteConnection(connectionString);
-            string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILE_PATHHMAC + " , " + FILE_HMAC + " ,  " + USER_USERNAME + " ) VALUES (@Path, @hmac, @User)";
+
+            string sqlS = "select path, hmac, username from FileHMAC where path = @path";
 
             connection.Open();
-            using (var insertSQL = new SQLiteCommand(sql, connection))
+            using (var selectSQL = new SQLiteCommand(sqlS, connection))
             {
-                insertSQL.Parameters.AddWithValue("@Path", file.path);
-                insertSQL.Parameters.AddWithValue("@hmac", file.hmac);
-                insertSQL.Parameters.AddWithValue("@User", file.UserName);
+                selectSQL.Parameters.AddWithValue("@path", file.path);
 
-                try
+                using (var rd = selectSQL.ExecuteReader())
                 {
-                    return insertSQL.ExecuteNonQuery();
-                }
-                catch (Exception e)
-                {
-                    throw new Exception(e.ToString());
+                    try
+                    {
+
+                        while (rd.Read())
+                        {
+                            value = (string)rd["path"];
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
                 }
             }
+            connection.Close();
+
+
+            if (value != file.path)
+            {
+                string sql = "INSERT INTO " + TABLE_FILEHMAC + " ( " + FILE_PATHHMAC + " , " + FILE_HMAC + " ,  " + USER_USERNAME + " ) VALUES (@Path, @hmac, @User)";
+
+                connection.Open();
+                using (var insertSQL = new SQLiteCommand(sql, connection))
+                {
+                    insertSQL.Parameters.AddWithValue("@Path", file.path);
+                    insertSQL.Parameters.AddWithValue("@hmac", file.hmac);
+                    insertSQL.Parameters.AddWithValue("@User", file.UserName);
+
+                    insertSQL.ExecuteNonQuery();
+
+                }
+            }
+
         }
 
         public static int UpdateFile(TFile file)
@@ -325,7 +356,7 @@ namespace EstouAVer
                 {
                     try
                     {
-                        var directories = new List<TFile>();
+                        List<TFile> directories = new List<TFile>();
                         while (rd.Read())
                         {
                             directories.Add(new TFile((string)rd[FILE_PATH], (string)rd[FILE_SHA256], (string)rd[FILE_DIR]));
@@ -340,7 +371,42 @@ namespace EstouAVer
             }
         }
 
+        public static List<FileHmac> SelectFileHMAC(string user)
+        {
 
+            List<FileHmac> list = new List<FileHmac>();
+
+
+            using var connection = new SQLiteConnection(connectionString);
+            string sql = "SELECT path, hmac FROM " + TABLE_FILEHMAC + " WHERE username = @user";
+
+            connection.Open();
+            using (var selectSQL = new SQLiteCommand(sql, connection))
+            {
+                selectSQL.Parameters.AddWithValue("@user", user);
+
+                using (var rd = selectSQL.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        FileHmac h = new FileHmac();
+
+                        try
+                        {
+                            h.hmac = (string)rd["hmac"];
+                            h.path = (string)rd["path"];
+                            list.Add(h);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(ex.Message);
+                        }
+                    }
+                    return list;
+                }
+            }
+        }
 
         public static int DeleteFile(TFile file)
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EstouAVer.Tables;
 
 namespace EstouAVer
@@ -62,7 +63,9 @@ namespace EstouAVer
         public static void VerificarIntegridade(Dir dir)
         {
             var currentfiles = SHA256Code.GenerateFromDir(dir.path);
+
             var databaseFiles = AjudanteParaBD.SelectFilesWithDir(dir.path);
+
 
             foreach (TFile f in databaseFiles)
             {
@@ -80,6 +83,10 @@ namespace EstouAVer
                 {
                     Console.WriteLine("O ficheiro \'" + f.path + "\' sofreu alteracoes.");
                     AjudanteParaBD.UpdateFile(new TFile(f.path, currentfiles[f.path], dir.path));
+                }
+                else
+                {
+                    Console.WriteLine("O ficheiro \'" + f.path + "\' sofreu alteracoes.");
                 }
 
                 currentfiles.Remove(f.path);

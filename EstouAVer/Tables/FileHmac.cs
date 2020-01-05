@@ -7,11 +7,16 @@ namespace EstouAVer.Tables
     public class FileHmac
     {
 
-        public string path { get; }
-        public string hmac { get; }
-        public string UserName { get; }
+        public string path { get; set; }
+        public string hmac { get; set; }
+        public string UserName { get; set; }
 
-        public FileHmac(string path, string hmac,  string UserNAme)
+        public FileHmac()
+        {
+
+        }
+
+        public FileHmac(string path, string hmac, string UserNAme)
         {
             this.path = path;
             this.hmac = hmac;

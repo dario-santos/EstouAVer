@@ -1,5 +1,6 @@
 ﻿using EstouAVer.Tables;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -13,8 +14,6 @@ namespace EstouAVer
     {
         private static void Main(string[] args)
         {
-
-
 
             StartService();
 
@@ -33,14 +32,10 @@ namespace EstouAVer
         {
             string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite";
 
+            Console.WriteLine("Introduza uma password para encriptar a base de dados");
 
-            var x = pbkdf2.CreateHash("abcd1234");
 
-            //BitConverter.ToString(x.hashedPassword).Replace("-", "");
-
-            string password = BitConverter.ToString(x.hashedPassword).Replace("-", "");
-
-            //string password = "abcd1234";
+            string password = Console.ReadLine(); ;
 
             byte[] bytesToBeEncrypted = File.ReadAllBytes(file);
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
@@ -50,10 +45,7 @@ namespace EstouAVer
 
             byte[] bytesEncrypted = AES.AES_Encrypt(bytesToBeEncrypted, passwordBytes);
 
-            // string fileEncrypted = Directories.databaseFriasENC;
-
             string fileEncrypted = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes";
-
 
             File.WriteAllBytes(fileEncrypted, bytesEncrypted);
 
@@ -74,11 +66,9 @@ namespace EstouAVer
 
             string fileEncrypted = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.aes";
 
-            var x = pbkdf2.CreateHash("abcd1234");
+            Console.WriteLine("Introduza a sua password para desencriptar a base de dados");
 
-            string password = BitConverter.ToString(x.hashedPassword).Replace("-", "");
-
-            // string password = "abcd1234";
+            string password = Console.ReadLine(); ;
 
             byte[] bytesToBeDecrypted = File.ReadAllBytes(fileEncrypted);
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
@@ -88,7 +78,6 @@ namespace EstouAVer
 
             string file = "C:\\Users\\Frias\\Desktop\\EstouAVerBD.sqlite";
             File.WriteAllBytes(file, bytesDecrypted);
-
 
         }
 
@@ -145,6 +134,7 @@ namespace EstouAVer
                 case 0:
                     Console.WriteLine("Programa terminado.");
                     EncryptFileBD();
+                    Environment.Exit(1);
                     break;
                 case 1:
                     LoginMenu();
@@ -254,8 +244,8 @@ namespace EstouAVer
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("");
                 Console.WriteLine("1 - Adicionar Diretoria De Verificação");
-                Console.WriteLine("2 - Verificar Diretoria");
-                Console.WriteLine("3 - Apagar Registos");
+                Console.WriteLine("2 - Calcular valores de hash");
+                Console.WriteLine("3 - Verifcar Registos");
                 Console.WriteLine("4 - Ajuda");
                 Console.WriteLine("5 - Logout");
                 Console.WriteLine("");
@@ -279,7 +269,7 @@ namespace EstouAVer
                     Console.Clear();
                     EncryptFileBD();
                     Console.WriteLine("Adeus!");
-
+                    Environment.Exit(1);
                     break;
                 case 1:
                     ReceberDiretoria();
@@ -291,7 +281,8 @@ namespace EstouAVer
                     MainMenu(username);
                     break;
                 case 3:
-                    Console.WriteLine("Apagar Registos");
+                    tipoVerificação(username);
+                    MainMenu(username);
                     break;
                 case 4:
                     Console.Clear();
@@ -305,7 +296,7 @@ namespace EstouAVer
             }
         }
 
-        public void tipoVerificação()
+        public static void tipoVerificação(string username)
         {
             bool b;
             string opcao;
@@ -318,11 +309,8 @@ namespace EstouAVer
                 Console.WriteLine("|                         MENU                             |");
                 Console.WriteLine("+----------------------------------------------------------+");
                 Console.WriteLine("");
-                Console.WriteLine("1 - Ler Diretoria");
-                Console.WriteLine("2 - Verificar Diretoria");
-                Console.WriteLine("3 - Apagar Registos");
-                Console.WriteLine("4 - Ajuda");
-                Console.WriteLine("5 - Logout");
+                Console.WriteLine("1 - Verificar SHA256");
+                Console.WriteLine("2 - Verificar HMAC");
                 Console.WriteLine("");
                 Console.WriteLine("0 - Sair");
                 Console.Write("\nOpcao escolhida: ");
@@ -336,6 +324,22 @@ namespace EstouAVer
                 }
             } while (b != true);
 
+            result_b = int.Parse(opcao);
+            switch (result_b)
+            {
+                case 0:
+
+                    break;
+                case 1:
+                    VerificarDiretoria();
+                    MainMenu(username);
+                    break;
+                case 2:
+                    Verificarhmac();
+                    MainMenu(username);
+                    break;
+
+            }
         }
 
         private static string ReceberDiretoria()
@@ -451,16 +455,14 @@ namespace EstouAVer
             {
                 case 0:
                     Console.Clear();
-                    Console.WriteLine("Adeus!");
-                    EncryptFileBD();
+                    MainMenu(username);
                     break;
-                case 1:
+                case 1:  
                     VerificarDiretoria();
                     MainMenu(username);
                     break;
                 case 2:
                     filesHmac(username);
-
                     MainMenu(username);
                     break;
             }
@@ -497,6 +499,7 @@ namespace EstouAVer
                 Console.WriteLine("Escolha uma direcotria!");
                 option = Console.ReadLine();
 
+
                 rdopiton = int.Parse(option);
 
             } while (rdopiton > i);
@@ -507,7 +510,6 @@ namespace EstouAVer
 
             var hash = HMac.hmac(directories[rdopiton].path, passwd);
 
-            //CASO QUEIRAM VER O RESULTADO
             foreach (var x in hash)
             {
                 Console.WriteLine(x);
@@ -516,11 +518,8 @@ namespace EstouAVer
 
         }
 
-
-
         private static void VerificarDiretoria()
         {
-            // Mostrar lista de diretorias do utilizador
             Console.WriteLine("+----------------------------------------------------------+");
             Console.WriteLine("|               Ler Directoria                             |");
             Console.WriteLine("+----------------------------------------------------------+");
@@ -553,9 +552,71 @@ namespace EstouAVer
             } while (index > directories.Count - 1 || index < 0);
 
             Console.WriteLine(string.Empty);
-            Console.WriteLine("Diretoria escolhida: " + directories[index]);
+            Console.WriteLine("Diretoria escolhida: " + directories[index].path);
 
             DataBaseFunctions.VerificarIntegridade(directories[index]);
+        }
+
+        public static void Verificarhmac()
+        {
+
+            Console.WriteLine("+----------------------------------------------------------+");
+            Console.WriteLine("|               Ler Directoria                             |");
+            Console.WriteLine("+----------------------------------------------------------+");
+
+            List<Dir> directories = AjudanteParaBD.SelectDirsWithUsername(DataBaseFunctions.userLog);
+            int index = 0;
+
+            if (directories == null)
+            {
+                Console.WriteLine("Erro durante a leitura da base de dados.");
+                return;
+            }
+            if (directories.Count == 0)
+            {
+                Console.WriteLine("Erro! Voce nao tem nenhuma diretoria adicionada.");
+                return;
+            }
+
+            for (int i = 0; i < directories.Count; i++)
+                Console.WriteLine(i + " - " + directories[i].path);
+
+            do
+            {
+                Console.Write("Diretoria a verificar: ");
+                index = int.Parse(Console.ReadLine());
+
+                if (index > directories.Count - 1 || index < 0)
+                    Console.WriteLine("Erro! Escolha uma opcao valida.");
+
+            } while (index > directories.Count - 1 || index < 0);
+
+            Console.WriteLine(string.Empty);
+            Console.WriteLine("Diretoria escolhida: " + directories[index].path.ToString());
+
+            Console.WriteLine("Introduza a sua palavra pass com que gerou os HMAC");
+            string pass = Console.ReadLine();
+
+            //EXEMPLO PARA CHAMAR O FUNÇÃO PARA UMA PASTA 
+            var currenthash = HMac.hmac(directories[index].path, pass);
+            var hmacBD = AjudanteParaBD.SelectFileHMAC(DataBaseFunctions.userLog);
+
+            foreach (FileHmac x in hmacBD)
+            {
+
+                if (!currenthash[x.path].Equals(x.hmac))
+                {
+                    Console.WriteLine("O ficheiro \'" + x.path + "\' sofreu alteracoes.");
+               
+                }
+                else
+                {
+                    Console.WriteLine("O ficheiro \'" + x.path + "\' não sofreu alteracoes.");
+
+                }
+
+            }
+
         }
 
         private static void HelpMenu()

@@ -36,13 +36,35 @@ namespace EstouAVer
         }
 
         //valida a pass se o hash estiver correto
-        public static bool validatePass(string pass, byte[] salt, byte[] correctHash)
-        {
+        //public static bool validatePass(string pass, byte[] salt, byte[] correctHash)
+        //{
 
+        //    //extrai os parâmetros do hash
+        //    byte[] testHash = Pbkdf2(pass, salt, pbkdf2Iterations, hashByteSize);
+        //    return compareHashes(correctHash, testHash);
+        //}
+
+        public static string validatePass(string pass, byte[] salt, byte[] correctHash)
+        {
+            bool value;
             //extrai os parâmetros do hash
             byte[] testHash = Pbkdf2(pass, salt, pbkdf2Iterations, hashByteSize);
-            return compareHashes(correctHash, testHash);
+           value =  compareHashes(correctHash, testHash);
+
+            if(value == true)
+            {
+
+                return BitConverter.ToString(correctHash).Replace("-","");
+            }
+            else
+            {
+
+                return "erro";
+            }
+        
+                
         }
+
 
         //compara dois hashes
         public static bool compareHashes(byte[] array1, byte[] array2)
