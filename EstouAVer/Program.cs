@@ -78,7 +78,7 @@ namespace EstouAVer
 
         private static bool CreateDataBase()
         {
-            if (!File.Exists(Directories.databaseFrias))
+            if (!File.Exists(Directories.database))
             {
                 AjudanteParaBD.OnCreate();
                 return true;

@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.ServiceProcess;
+using System.Text;
 using System.Timers;
 
 namespace EstouAVer
@@ -14,6 +16,7 @@ namespace EstouAVer
         private string key;
         private string username;
         private string password;
+        private string dataBasePassword;
         private Dir dir;
 
         public VerificationService()
@@ -112,13 +115,46 @@ namespace EstouAVer
             return lines.ToArray();
         }
 
-
         private bool Login(string username, string password)
         {
             User user = AjudanteParaBD.SelectUserWithUsername(username);
             string insertedRep = SHA256Code.GenerateFromText(SHA256Code.GenerateFromText(password) + user.salt);
 
             return user.rep.Equals(insertedRep);
+        }
+
+        public void EncryptFileBD()
+        {
+            byte[] bytesToBeEncrypted = File.ReadAllBytes(Directories.database);
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(dataBasePassword);
+
+            passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
+
+            byte[] bytesEncrypted = AES.AES_Encrypt(bytesToBeEncrypted, passwordBytes);
+
+            File.WriteAllBytes(Directories.databaseAES, bytesEncrypted);
+
+            FileInfo f = new FileInfo(Directories.database);
+
+            try
+            {
+                f.Delete();
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        public void DecryptFileBD()
+        {
+            byte[] bytesToBeDecrypted = File.ReadAllBytes(Directories.databaseAES);
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(dataBasePassword);
+            passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
+
+            byte[] bytesDecrypted = AES.AES_Decrypt(bytesToBeDecrypted, passwordBytes);
+
+            File.WriteAllBytes(Directories.database, bytesDecrypted);
         }
 
         protected override void OnStart(string[] args)
@@ -128,8 +164,9 @@ namespace EstouAVer
             string directory = string.Empty;
             username = string.Empty;
             password = string.Empty;
+            dataBasePassword = string.Empty;
 
-            if (args.Length != 4 && args.Length != 5)
+            if (args.Length != 5 && args.Length != 6)
             {
                 OnStop();
                 return;
@@ -142,6 +179,7 @@ namespace EstouAVer
                 username  = args[1];
                 password  = args[2];
                 directory = args[3];
+                dataBasePassword = args[4];
             }
             else if(mode.Equals("hmac"))
             {
@@ -149,12 +187,21 @@ namespace EstouAVer
                 username  = args[2];
                 password  = args[3];
                 directory = args[4];
+                dataBasePassword = args[5];
             }
             else
             {
                 OnStop();
                 return;
             }
+            
+            if(!File.Exists(Directories.databaseAES))
+            {
+                OnStop();
+                return;
+            }
+
+            DecryptFileBD();
 
             if (!Login(username, password))
             {
@@ -179,6 +226,9 @@ namespace EstouAVer
 
         protected override void OnStop()
         {
+            if(File.Exists(Directories.databaseAES))
+                EncryptFileBD();
+
             timer.Stop();
         }
     }
