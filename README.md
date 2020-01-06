@@ -20,13 +20,13 @@ sc delete EstouAVerService
 Existem dois modos de começar o serviço, com SHA256
 
 ```Powershell
-sc start EstouAVerService sha256 username password directory
+sc start EstouAVerService sha256 username password directory databasePassword
 ```
 
 ou com o HMAC:
 
 ```Powershell
-sc start EstouAVerService hmac key username password directory
+sc start EstouAVerService hmac key username password directory databasePassword
 ```
 
 ### Parar o serviço
